@@ -1,7 +1,39 @@
-bindrowvecs <- function(X, n) matrix(rep(X, n), nrow = n, byrow = TRUE)
+#' Title
+#'
+#' @param X
+#' @param n
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
+bindrowvecs <- function(X, n) {
+  matrix(rep(X, n), nrow = n, byrow = TRUE)
+}
 
-bindcolvecs <- function(X, n) matrix(rep(X, n), nrow = n, byrow = FALSE)
+#' Title
+#'
+#' @param X
+#' @param n
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
+bindcolvecs <- function(X, n) {
+  matrix(rep(X, n), nrow = n, byrow = FALSE)
+}
 
+#' Title
+#'
+#' @param ds
+#' @param X
+#' @param g
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 ivectomats <- function(ds, X, g) {
   ds$group <- eval(substitute(group), ds)
   gidx <- which(ds$group == g)
@@ -13,6 +45,15 @@ ivectomats <- function(ds, X, g) {
   out
 }
 
+#' Title
+#'
+#' @param ds
+#' @param group
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 Getgroupindex <- function(ds, group) {
   ds$group <- eval(substitute(group), ds)
   ds$groupidx <- 0
@@ -23,6 +64,16 @@ Getgroupindex <- function(ds, group) {
   ds$groupidx
 }
 
+#' Title
+#'
+#' @param group
+#' @param groupW
+#' @param n
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetGP <- function(group, groupW, n) {
   groupZ <- groupW * (group %% 2)
   # Create Z matrix of indicators

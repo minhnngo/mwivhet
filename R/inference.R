@@ -1,3 +1,19 @@
+#' Title
+#'
+#' @param df
+#' @param groupW
+#' @param group
+#' @param X
+#' @param Y
+#' @param MX
+#' @param MY
+#' @param q
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy = FALSE) {
   df$X <- eval(substitute(X), df)
   df$Y <- eval(substitute(Y), df)
@@ -35,6 +51,21 @@ GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy 
   c(acon, bcon, ccon)
 }
 
+#' Title
+#'
+#' @param df
+#' @param groupW
+#' @param group
+#' @param X
+#' @param Y
+#' @param MX
+#' @param MY
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetSigMx <- function(df, groupW, group, X, Y, MX, MY, noisy = FALSE) {
   df$X <- eval(substitute(X), df)
   df$Y <- eval(substitute(Y), df)
@@ -64,6 +95,21 @@ GetSigMx <- function(df, groupW, group, X, Y, MX, MY, noisy = FALSE) {
   c(sig11, sig22, sig33, sig12, sig23, sig13)
 }
 
+#' Title
+#'
+#' @param df
+#' @param groupZ
+#' @param X
+#' @param Y
+#' @param MX
+#' @param MY
+#' @param q
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCIcoef_nocov <- function(df, groupZ, X, Y, MX, MY, q = qnorm(.975)^2, noisy = FALSE) {
   df$groupZ <- eval(substitute(groupZ), df)
   df$X <- eval(substitute(X), df)
@@ -102,6 +148,24 @@ GetCIcoef_nocov <- function(df, groupZ, X, Y, MX, MY, q = qnorm(.975)^2, noisy =
   c(acon, bcon, ccon)
 }
 
+#' Title
+#'
+#' @param df
+#' @param P
+#' @param G
+#' @param X
+#' @param Y
+#' @param MX
+#' @param MY
+#' @param Z
+#' @param W
+#' @param q
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCIcoef_iloop <- function(df, P, G, X, Y, MX, MY, Z, W, q = qnorm(.975)^2, noisy = FALSE) {
   df$X <- eval(substitute(X), df)
   df$Y <- eval(substitute(Y), df)
@@ -155,6 +219,18 @@ GetCIcoef_iloop <- function(df, P, G, X, Y, MX, MY, Z, W, q = qnorm(.975)^2, noi
   c(acon, bcon, ccon)
 }
 
+#' Title
+#'
+#' @param X
+#' @param Y
+#' @param P
+#' @param q
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCIcoef_iloop_nocov <- function(X, Y, P, q = qnorm(0.975)^2, noisy = FALSE) {
   n <- length(X)
   M <- diag(n) - P
@@ -395,6 +471,25 @@ GetCIcoef_iloop_nocov <- function(X, Y, P, q = qnorm(0.975)^2, noisy = FALSE) {
 }
 
 
+#' Title
+#'
+#' @param df
+#' @param IdPW
+#' @param IdPQ
+#' @param dPW
+#' @param dPQ
+#' @param X
+#' @param Y
+#' @param MX
+#' @param MY
+#' @param q
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCIcoef_ijloop <- function(df, IdPW, IdPQ, dPW, dPQ, X, Y, MX, MY, q = qnorm(.975)^2, noisyi = FALSE, noisyj = FALSE) {
   df$X <- eval(substitute(X), df)
   df$Y <- eval(substitute(Y), df)
@@ -432,7 +527,26 @@ GetCIcoef_ijloop <- function(df, IdPW, IdPQ, dPW, dPQ, X, Y, MX, MY, q = qnorm(.
   c(acon, bcon, ccon)
 }
 
-# updated ijloop getcoef function
+#' Title
+#'
+#' @param X
+#' @param Y
+#' @param MX
+#' @param MY
+#' @param W
+#' @param Q
+#' @param WWWinv
+#' @param QQQinv
+#' @param IdPQ
+#' @param IdPW
+#' @param q
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCIcoef_ijloop_cov <- function(X, Y, MX, MY, W, Q, WWWinv, QQQinv, IdPQ, IdPW, q = qnorm(0.975)^2, noisyi = TRUE, noisyj = FALSE) {
   n <- length(X)
   onesN <- matrix(rep(1, n), ncol = 1)
@@ -830,6 +944,14 @@ GetCIcoef_ijloop_cov <- function(X, Y, MX, MY, W, Q, WWWinv, QQQinv, IdPQ, IdPW,
 }
 
 
+#' Title
+#'
+#' @param CIcoef
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCIvals <- function(CIcoef) {
   acon <- CIcoef[1]
   bcon <- CIcoef[2]
@@ -840,6 +962,14 @@ GetCIvals <- function(CIcoef) {
   c(CILB, CIUB)
 }
 
+#' Title
+#'
+#' @param CIcoef
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetCItypebd <- function(CIcoef) {
   det <- CIcoef[2]^2 - 4 * CIcoef[1] * CIcoef[3]
   if (CIcoef[1] >= 0 & det >= 0) {
@@ -858,6 +988,22 @@ GetCItypebd <- function(CIcoef) {
   c(CItype, CIbounds)
 }
 
+#' Title
+#'
+#' @param df
+#' @param groupW
+#' @param groupQ
+#' @param X
+#' @param Y
+#' @param MX
+#' @param MY
+#' @param q
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetL3OCIcoef_fast <- function(df, groupW, groupQ, X, Y, MX, MY, q = qnorm(.975)^2, noisy = FALSE) {
   df$X <- eval(substitute(X), df)
   df$Y <- eval(substitute(Y), df)
@@ -1201,7 +1347,22 @@ GetL3OCIcoef_fast <- function(df, groupW, groupQ, X, Y, MX, MY, q = qnorm(.975)^
   c(acon, bcon, ccon)
 }
 
-# GetLM
+#' Title
+#'
+#' @param df
+#' @param IdPW
+#' @param IdPQ
+#' @param dPW
+#' @param dPQ
+#' @param W
+#' @param Q
+#' @param X
+#' @param Y
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetLM_WQ <- function(df, IdPW, IdPQ, dPW, dPQ, W, Q, X, Y) {
   df$Xpos <- eval(substitute(X), df)
   df$Ypos <- eval(substitute(Y), df)
@@ -1225,6 +1386,19 @@ GetLM_WQ <- function(df, IdPW, IdPQ, dPW, dPQ, W, Q, X, Y) {
     (t(WXdW) %*% WWinv %*% WY - sum(df$Xpos * dPW / IdPW * df$Ypos))
 }
 
+#' Title
+#'
+#' @param df
+#' @param X
+#' @param e
+#' @param groupW
+#' @param group
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetLM <- function(df, X, e, groupW, group, noisy = FALSE) {
   LMvecs <- rep(0, max(df$groupW))
   df$Xpos <- eval(substitute(X), df)
@@ -1259,6 +1433,18 @@ GetLM <- function(df, X, e, groupW, group, noisy = FALSE) {
 }
 
 
+#' Title
+#'
+#' @param df
+#' @param X
+#' @param e
+#' @param groupZ
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GetLM_nocov <- function(df, X, e, groupZ, noisy = FALSE) {
   df$groupZ <- eval(substitute(groupZ), df)
   LMvecs <- rep(0, max(df$groupZ))

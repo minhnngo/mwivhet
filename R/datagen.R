@@ -1,3 +1,21 @@
+#' Title
+#'
+#' @param S
+#' @param Het
+#' @param sigee
+#' @param sigvv
+#' @param sigexi
+#' @param sigev
+#' @param ConTE
+#' @param beta
+#' @param beta0
+#' @param K
+#' @param c
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GenData_nocov <- function(S = 3, Het = 3, sigee = 1, sigvv = 1, sigexi = 0, sigev = 0, ConTE = FALSE,
                           beta = 0, beta0 = 0, K = 40, c = 5) {
   # Calculations as function of parameters
@@ -68,6 +86,23 @@ GenData_nocov <- function(S = 3, Het = 3, sigee = 1, sigvv = 1, sigexi = 0, sige
   df
 }
 
+#' Title
+#'
+#' @param S
+#' @param p1
+#' @param Het
+#' @param sigeps
+#' @param sigev
+#' @param beta
+#' @param beta0
+#' @param omega
+#' @param K
+#' @param c
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 GenData_cov <- function(S = 5, p1 = 7 / 8, Het = 3, sigeps = .5, sigev = .1, beta = 0, beta0 = 0, omega = .1,
                         K = 20, c = 5) {
   # Calculations as function of parameters

@@ -1,3 +1,15 @@
+#' Title
+#'
+#' @param X
+#' @param e
+#' @param P
+#' @param G
+#' @param noisy
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
   n <- length(X)
   M <- diag(n) - P
@@ -101,6 +113,26 @@ L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
 }
 
 
+
+#' Title
+#'
+#' @param X
+#' @param e
+#' @param MX
+#' @param Me
+#' @param W
+#' @param Q
+#' @param WWWinv
+#' @param QQQinv
+#' @param IdPQ
+#' @param IdPW
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 L3Ovar_ijloop_cov <- function(X, e, MX, Me, W, Q, WWWinv, QQQinv, IdPQ, IdPW, noisyi = TRUE, noisyj = FALSE) {
   n <- length(X)
   onesN <- matrix(rep(1, n), ncol = 1)
@@ -253,6 +285,20 @@ L3Ovar_ijloop_cov <- function(X, e, MX, Me, W, Q, WWWinv, QQQinv, IdPQ, IdPW, no
 }
 
 
+#' Title
+#'
+#' @param df
+#' @param group
+#' @param groupW
+#' @param X
+#' @param e
+#' @param MX
+#' @param Me
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 L3Ovar_gloop_cov <- function(df, group, groupW, X, e, MX, Me) {
   df$group <- eval(substitute(group), df)
   df$groupW <- eval(substitute(groupW), df)
@@ -368,6 +414,20 @@ L3Ovar_gloop_cov <- function(df, group, groupW, X, e, MX, Me) {
 }
 
 
+
+#' Title
+#'
+#' @param df
+#' @param group
+#' @param X
+#' @param e
+#' @param MX
+#' @param Me
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 L3Ovar_gloop_nocov <- function(df, group, X, e, MX, Me) {
   df$group <- eval(substitute(group), df)
   A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0, length(unique(df$group)))
@@ -476,6 +536,17 @@ L3Ovar_gloop_nocov <- function(df, group, X, e, MX, Me) {
 }
 
 
+#' Title
+#'
+#' @param X
+#' @param e
+#' @param P
+#' @param c
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 L3Ovar_block <- function(X, e, P, c) {
   n <- length(X)
   M <- diag(n) - P
@@ -560,6 +631,16 @@ L3Ovar_block <- function(X, e, P, c) {
 }
 
 
+#' Title
+#'
+#' @param X
+#' @param e
+#' @param P
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 L3Ovar_iloop_nocov <- function(X, e, P) {
   n <- length(X)
   M <- diag(n) - P
