@@ -1,3 +1,18 @@
+#' Title
+#'
+#' @param df
+#' @param group
+#' @param groupW
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A1type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE) {
   A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0, max(df$group))
 
@@ -82,6 +97,21 @@ A1type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE)
   sum(ret)
 }
 
+#' Title
+#'
+#' @param df
+#' @param group
+#' @param groupW
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A4type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE) {
   A41vecs <- A42vecs <- A43vecs <- A44vecs <- rep(0, max(df$group))
 
@@ -171,6 +201,20 @@ A4type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE)
 }
 
 
+#' Title
+#'
+#' @param df
+#' @param groupZ
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A1type_sum_nocov <- function(df, groupZ, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$groupZ <- eval(substitute(groupZ), df)
   A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0, max(df$groupZ))
@@ -234,6 +278,20 @@ A1type_sum_nocov <- function(df, groupZ, ipos, jpos, kpos, lpos, noisy = FALSE) 
   sum(ret)
 }
 
+#' Title
+#'
+#' @param df
+#' @param groupZ
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A4type_sum_nocov <- function(df, groupZ, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$groupZ <- eval(substitute(groupZ), df)
   A41vecs <- A42vecs <- A43vecs <- A44vecs <- rep(0, max(df$groupZ))

@@ -1,3 +1,18 @@
+#' Title
+#'
+#' @param df
+#' @param P
+#' @param G
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A1type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   # A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0,max(df$group))
 
@@ -58,6 +73,21 @@ A1type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(A1vec * df$ipos)
 }
 
+#' Title
+#'
+#' @param df
+#' @param P
+#' @param G
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A2type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -118,6 +148,21 @@ A2type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(A2vec * df$ipos)
 }
 
+#' Title
+#'
+#' @param df
+#' @param P
+#' @param G
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A3type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -176,6 +221,21 @@ A3type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(A3vec * df$ipos)
 }
 
+#' Title
+#'
+#' @param df
+#' @param P
+#' @param G
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A4type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -241,6 +301,21 @@ A4type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(ret)
 }
 
+#' Title
+#'
+#' @param df
+#' @param P
+#' @param G
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param noisy
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A5type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -308,6 +383,22 @@ A5type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(ret)
 }
 
+#' Title
+#'
+#' @param df
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param IdPQ
+#' @param IdPW
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A1type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -386,6 +477,22 @@ A1type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A1vec * df$ipos)
 }
 
+#' Title
+#'
+#' @param df
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param IdPQ
+#' @param IdPW
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A2type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -467,6 +574,22 @@ A2type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A2vec * df$ipos)
 }
 
+#' Title
+#'
+#' @param df
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param IdPQ
+#' @param IdPW
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A3type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -545,6 +668,22 @@ A3type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A3vec * df$ipos)
 }
 
+#' Title
+#'
+#' @param df
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param IdPQ
+#' @param IdPW
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A4type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -622,6 +761,22 @@ A4type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A4vec * df$ipos)
 }
 
+#' Title
+#'
+#' @param df
+#' @param ipos
+#' @param jpos
+#' @param kpos
+#' @param lpos
+#' @param IdPQ
+#' @param IdPW
+#' @param noisyi
+#' @param noisyj
+#'
+#' @returns
+#' @noRd
+#'
+#' @examples
 A5type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
