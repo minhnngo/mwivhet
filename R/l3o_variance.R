@@ -1,12 +1,48 @@
-#' Title
+#' Leave-Three-Out Variance Estimator for LM Statistic
 #'
-#' @param X
-#' @param e
-#' @param P
-#' @param G
-#' @param noisy
+#' @description
+#' Calculates the consistent variance estimator ($\hat{V}_{LM}$) for the Lagrange Multiplier (LM)
+#' test statistic. This estimator is robust to both many weak instruments and heterogeneous treatment effects.
 #'
-#' @returns
+#' The function implements the "Leave-Three-Out" (L3O) approach proposed in Yap (2025),
+#' which corrects for biases in variance estimation that arise when reduced-form coefficients
+#' are not consistently estimable (e.g., due to many instruments).
+#'
+#' @param X A numeric vector of length n containing the endogenous variable.
+#' @param e A numeric vector of length n containing the residuals under the null hypothesis
+#'   ($e = Y - X\beta_0$).
+#' @param P A numeric n x n projection matrix of the instruments (and potentially covariates).
+#'   Corresponds to matrix $P$ or $H_Q$ in the paper.
+#' @param G A numeric n x n weighting matrix used in the JIVE/UJIVE estimator.
+#'   For standard JIVE, G is equal to P. For UJIVE with covariates, G is the adjusted
+#'   matrix defined in Section 3.1.
+#' @param noisy A logical indicating whether to print progress dots during the loop.
+#'   Defaults to FALSE.
+#'
+#' @details
+#' The function computes the variance estimator defined in Equation (9) of the paper:
+#' \deqn{\hat{V}_{LM} = A_1 + A_2 + A_3 + A_4 + A_5}
+#'
+#' It iterates through each observation $i$ to compute the necessary adjustments
+#' (Leave-Three-Out determinants $D_{ijk}$) and aggregates the components using
+#' optimized matrix operations to handle the double sums over $j$ and $k$.
+#'
+#' Specifically:
+#' \itemize{
+#'   \item \strong{A1-A3} capture the core variance components involving interactions between
+#'   the instruments, endogenous variable, and residuals.
+#'   \item \strong{A4-A5} are correction terms that account for the variability from estimating
+#'   the reduced-form coefficients (which cannot be treated as fixed in the many-instrument setting).
+#' }
+#'
+#' The calculation relies on determinants $D_{ij}$ and $D_{ijk}$ derived from the annihilator
+#' matrix $M = I - P$ to ensure the estimator is unbiased.
+#'
+#' @returns A scalar numeric value representing the estimated variance $\hat{V}_{LM}$.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
+#'
 #' @export
 #'
 #' @examples
@@ -114,22 +150,52 @@ L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
 
 
 
-#' Title
+#' Leave-Three-Out Variance Estimator (Nested Loop Implementation)
 #'
-#' @param X
-#' @param e
-#' @param MX
-#' @param Me
-#' @param W
-#' @param Q
-#' @param WWWinv
-#' @param QQQinv
-#' @param IdPQ
-#' @param IdPW
-#' @param noisyi
-#' @param noisyj
+#' @description
+#' Calculates the consistent variance estimator ($\hat{V}_{LM}$) for the Lagrange Multiplier (LM)
+#' test statistic using an explicit nested loop structure.
 #'
-#' @returns
+#' This function performs the same statistical estimation as \code{L3Ovar_iloop_cov} but constructs
+#' the weighting matrix G dynamically from instruments (Q) and covariates (W). It iterates explicitly
+#' over indices i and j, vectorizing the third summation index k. This implementation is generally
+#' slower but useful for verifying results or when the full G matrix is too large to store in memory.
+#'
+#' @param X A numeric vector of length n containing the endogenous variable.
+#' @param e A numeric vector of length n containing the residuals ($e = Y - X\beta_0$).
+#' @param MX A numeric vector representing the product of the annihilator matrix M and X
+#'   ($M \%*\% X$). Passed as an argument to avoid re-computation.
+#' @param Me A numeric vector representing the product of the annihilator matrix M and e
+#'   ($M \%*\% e$). Passed as an argument to avoid re-computation.
+#' @param W A numeric matrix of covariates (controls).
+#' @param Q A numeric matrix of instruments (including covariates).
+#' @param WWWinv A numeric matrix representing the inverse of the gram matrix of W ($(W'W)^{-1}$).
+#' @param QQQinv A numeric matrix representing the inverse of the gram matrix of Q ($(Q'Q)^{-1}$).
+#' @param IdPQ A numeric vector containing the diagonal elements of the projection matrix $P_Q$.
+#' @param IdPW A numeric vector containing the diagonal elements of the projection matrix $P_W$.
+#' @param noisyi A logical indicating whether to print progress for the outer loop (i). Defaults to TRUE.
+#' @param noisyj A logical indicating whether to print progress for the inner loop (j). Defaults to FALSE.
+#'
+#' @details
+#' The function calculates the variance estimator defined in Equation (9) of Yap (2025):
+#' \deqn{\hat{V}_{LM} = A_1 + A_2 + A_3 + A_4 + A_5}
+#'
+#' Unlike the vectorized version, this function computes the rows and columns of the weighting
+#' matrix G on-the-fly inside the loop using the UJIVE formula:
+#' \deqn{G_{ij} = \frac{P_{Q,ij}}{M_{Q,ii}} - \frac{P_{W,ij}}{M_{W,ii}}}
+#'
+#' The triple summation required for the variance components is handled by:
+#' \enumerate{
+#'   \item Outer loop over $i$.
+#'   \item Inner loop over $j$.
+#'   \item Vectorized operations over the vectors to handle index $k$.
+#' }
+#'
+#' @returns A scalar numeric value representing the estimated variance $\hat{V}_{LM}$.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
+#'
 #' @export
 #'
 #' @examples
@@ -152,7 +218,7 @@ L3Ovar_ijloop_cov <- function(X, e, MX, Me, W, Q, WWWinv, QQQinv, IdPQ, IdPW, no
     dPWi <- rep(0, n)
     dPWi[i] <- dPW[i]
 
-    Pi <- QQQinv %*% Q[i, ]
+    Pi <- QQQinv %*% Q[i, ] # Should this be Pi <- Q %*% (QQQinv %*% Q[i, ])
     Girow <- (QQQinv %*% Q[i, ] - dPQi) / dM[i] -
       (WWWinv %*% W[i, ] - dPWi) / dMW[i]
     Gicol <- t(QQQinv %*% Q[i, ] - dPQi) / dM -

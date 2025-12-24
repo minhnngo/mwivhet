@@ -1,18 +1,34 @@
-#' Title
+#' Compute Generalized A1-Type Variance Component
 #'
-#' @param df
-#' @param P
-#' @param G
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates a variance component structured like the \eqn{A_1} term in the L3O variance
+#' estimator, allowing for arbitrary vectors in the summation positions. This generalized
+#' function is used to compute \eqn{A_1}, \eqn{A_2}, and \eqn{A_3} by permuting the
+#' input vectors (e.g., swapping regressors \eqn{X} and residuals \eqn{e}).
 #'
-#' @returns
-#' @noRd
+#' @param df Data frame. Contains the data vectors specified by \code{ipos}, \code{jpos},
+#'   \code{kpos}, and \code{lpos}.
+#' @param P Matrix of dimension \eqn{n \times n}. The projection matrix of instruments.
+#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
+#' @param ipos Name of the column in \code{df} (unquoted) corresponding to the outer summation weight \eqn{i}.
+#' @param jpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{j}.
+#' @param kpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{k}.
+#' @param lpos Name of the column in \code{df} (unquoted) corresponding to the bias correction/residual term.
+#' @param noisy Logical. If \code{TRUE}, prints progress to the console.
 #'
-#' @examples
+#' @details
+#' This function computes the scalar:
+#' \deqn{S = \sum_{i} v_i^{(I)} \left[ v_i^{(L)} \sum_{j \neq i} \sum_{k \neq i} G_{ij} v_j^{(J)} G_{ik} v_k^{(K)} W_{ijk} - \text{BiasCorrect}(v^{(L)}, v^{(J)}, v^{(K)}) \right]}
+#' where \eqn{v^{(I)}, v^{(J)}, v^{(K)}, v^{(L)}} correspond to the vectors specified by
+#' \code{ipos}, \code{jpos}, \code{kpos}, and \code{lpos} respectively. \eqn{W_{ijk}} represents
+#' the Leave-Three-Out weighting derived from the annihilator matrix \eqn{M = I-P}.
+#'
+#' The function implements the bias correction expansion (terms \eqn{A_{12}} through \eqn{A_{15}})
+#' required for consistency under many weak instruments.
+#'
+#' @return A numeric scalar representing the computed sum.
+#'
+#' @export
 A1type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   # A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0,max(df$group))
 
@@ -73,21 +89,39 @@ A1type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(A1vec * df$ipos)
 }
 
-#' Title
+#' Compute Generalized A2-Type Variance Component
 #'
-#' @param df
-#' @param P
-#' @param G
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates a variance component structurally equivalent to the \eqn{A_2} term in the
+#' L3O variance estimator. This function handles asymmetric weighting structures where
+#' the summation involves terms of the form \eqn{G_{ij} G_{ki}} (chaining indices),
+#' differing from the symmetric \eqn{G_{ij} G_{ik}} form calculated by \code{A1type_iloop_sum}.
 #'
-#' @returns
-#' @noRd
+#' @param df Data frame. Contains the data vectors specified by \code{ipos}, \code{jpos},
+#'   \code{kpos}, and \code{lpos}.
+#' @param P Matrix of dimension \eqn{n \times n}. The projection matrix of instruments.
+#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
+#' @param ipos Name of the column in \code{df} (unquoted) corresponding to the outer summation weight \eqn{i}.
+#' @param jpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{j}.
+#' @param kpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{k}.
+#' @param lpos Name of the column in \code{df} (unquoted) corresponding to the bias correction/residual term.
+#' @param noisy Logical. If \code{TRUE}, prints progress to the console.
 #'
-#' @examples
+#' @details
+#' This function computes the scalar:
+#' \deqn{S = \sum_{i} v_i^{(I)} \left[ v_i^{(L)} \sum_{j \neq i} \sum_{k \neq i} G_{ij} v_j^{(J)} G_{ki} v_k^{(K)} W_{ijk} - \text{BiasCorrect} \right]}
+#' where \eqn{v^{(I)}, v^{(J)}, v^{(K)}, v^{(L)}} correspond to the input vectors.
+#'
+#' The primary distinction from \code{A1type_iloop_sum} is the use of \eqn{G_{ki}} (the \eqn{i}-th element of column \eqn{k}, or row \eqn{k} column \eqn{i})
+#' in the second position, rather than \eqn{G_{ik}}. This asymmetric structure is required
+#' for interaction terms in the variance of the score statistic (e.g., \eqn{A_2} and \eqn{A_5} in Yap 2025).
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
+#' @export
 A2type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -148,21 +182,39 @@ A2type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(A2vec * df$ipos)
 }
 
-#' Title
+#' Compute Generalized A3-Type Variance Component
 #'
-#' @param df
-#' @param P
-#' @param G
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates a variance component structurally equivalent to the \eqn{A_3} term in the
+#' L3O variance estimator. This function handles "incoming" weighting structures where
+#' the summation involves weights of the form \eqn{G_{ji} G_{ki}} (where indices \eqn{j}
+#' and \eqn{k} both target \eqn{i}).
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param P Matrix of dimension \eqn{n \times n}. The orthogonal projection matrix of instruments.
+#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
+#' @param ipos Name of the column in \code{df} (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ji}}.
+#' @param kpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(K)}} weighted by \eqn{G_{ki}}.
+#' @param lpos Name of the column in \code{df} (unquoted) for the scalar bias correction term \eqn{v^{(L)}}.
+#' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'
+#' @details
+#' This function computes the scalar:
+#' \deqn{S = \sum_{i} v_i^{(I)} \left[ v_i^{(L)} \sum_{j \neq i} \sum_{k \neq i} G_{ji} v_j^{(J)} G_{ki} v_k^{(K)} W_{ijk} - \text{BiasCorrect} \right]}
+#' where \eqn{W_{ijk}} is the Leave-Three-Out weighting derived from the annihilator matrix.
+#'
+#' This term corresponds to \eqn{A_3} in Yap (2025). It captures the variance arising from
+#' the "reverse" influence of observations \eqn{j} and \eqn{k} on observation \eqn{i}
+#' through the weighting matrix. This is typically used to estimate the variance of the
+#' endogenous variable \eqn{X} attributed to the residuals \eqn{e}.
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A3type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -221,21 +273,40 @@ A3type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(A3vec * df$ipos)
 }
 
-#' Title
+#' Compute Generalized A4-Type Variance Component
 #'
-#' @param df
-#' @param P
-#' @param G
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates the "own-variance" bias correction component, structurally equivalent to the
+#' \eqn{A_4} term in the L3O variance estimator. This term captures the bias arising from
+#' the squared diagonal weights \eqn{G_{ji}^2} (or \eqn{G_{ji}G_{ij}} in symmetric cases)
+#' and is used to remove the positive bias introduced by the variance of the instrument
+#' projection errors.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param P Matrix of dimension \eqn{n \times n}. The orthogonal projection matrix of instruments.
+#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
+#' @param ipos Name of the column in \code{df} (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ji}^2}.
+#' @param kpos Name of the column in \code{df} (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Name of the column in \code{df} (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'
+#' @details
+#' This function computes a scalar representing the bias correction for the "own-observation"
+#' variance contributions. In the notation of Yap (2025), this corresponds to \eqn{A_4}.
+#'
+#' Unlike \eqn{A_1} through \eqn{A_3}, which estimate signal variances and cross-covariances,
+#' \eqn{A_4} specifically estimates the quantity:
+#' \deqn{S = \sum_{i} v_i^{(I)} \sum_{j \neq i} G_{ji}^2 \widehat{Var}(v_j) W_{ij}}
+#' adjusted for the leverage exerted by the annihilator matrix \eqn{M} to ensure unbiasedness.
+#' The term involves element-wise squaring of the weighting matrix column (\code{Gi^2}).
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A4type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -301,21 +372,42 @@ A4type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(ret)
 }
 
-#' Title
+#' Compute Generalized A5-Type Variance Component
 #'
-#' @param df
-#' @param P
-#' @param G
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates the "asymmetry" bias correction component, structurally equivalent to the
+#' \eqn{A_5} term in the L3O variance estimator. This term captures the bias arising from
+#' the interaction of row and column weights \eqn{G_{ij} G_{ji}} and is required when
+#' the weighting matrix \eqn{G} is asymmetric (e.g., UJIVE).
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param P Matrix of dimension \eqn{n \times n}. The orthogonal projection matrix of instruments.
+#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
+#' @param ipos Name of the column in \code{df} (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ij}G_{ji}}.
+#' @param kpos Name of the column in \code{df} (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Name of the column in \code{df} (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'
+#' @details
+#' This function computes a scalar representing the bias correction for variance contributions
+#' arising from the asymmetry of the weighting matrix. In the notation of Yap (2025), this
+#' corresponds to \eqn{A_5}.
+#'
+#' The term estimates:
+#' \deqn{S = \sum_{i} v_i^{(I)} \sum_{j \neq i} G_{ij} G_{ji} \widehat{Var}(v_j) W_{ij}}
+#' adjusted for leverage to ensure unbiasedness.
+#'
+#' If \eqn{G} is symmetric (e.g., \eqn{G=P}), then \eqn{G_{ij} = G_{ji}}, making this term
+#' identical to \code{A4type_iloop_sum}. For asymmetric \eqn{G}, both \eqn{A_4} and \eqn{A_5}
+#' must be calculated and subtracted from the total variance.
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A5type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -383,22 +475,47 @@ A5type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   sum(ret)
 }
 
-#' Title
+#' Compute A1-Type Variance Component (Explicit IJ-Loop)
 #'
-#' @param df
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param IdPQ
-#' @param IdPW
-#' @param noisyi
-#' @param noisyj
+#' @description
+#' Calculates the \eqn{A_1} variance component using an explicit double loop over indices
+#' \eqn{i} and \eqn{j}, with vectorization over \eqn{k}. This implementation constructs
+#' instrument weights row-by-row, avoiding the storage of full \eqn{N \times N} projection
+#' matrices. It is primarily used for verification or memory-constrained environments.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}}.
+#' @param kpos Name of the column (unquoted) for the inner term \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the bias correction term \eqn{v^{(L)}}.
+#' @param IdPQ Numeric vector. The diagonal elements of the full projection matrix \eqn{P} (instruments + covariates).
+#' @param IdPW Numeric vector. The diagonal elements of the covariate projection matrix \eqn{P_W}.
+#' @param noisyi Logical. If \code{TRUE}, prints progress for the outer loop \eqn{i}.
+#' @param noisyj Logical. If \code{TRUE}, prints progress for the inner loop \eqn{j}.
+#'
+#' @details
+#' This function computes the same scalar quantity as \code{A1type_iloop_sum} but uses a
+#' different computational strategy.
+#'
+#' \strong{Key Differences:}
+#' \itemize{
+#'   \item \strong{Memory:} Does not require passing or storing the full matrices \eqn{P} or \eqn{G}.
+#'   It reconstructs the rows \eqn{P_{i\cdot}} and \eqn{G_{i\cdot}} on the fly using the global
+#'   objects \code{Q}, \code{QQinv}, \code{W}, and \code{WWinv}.
+#'   \item \strong{Complexity:} \eqn{O(N^3)} explicitly. While mathematically equivalent,
+#'   this function is generally slower in R than the fully vectorized \code{iloop} version
+#'   due to the interpreted \eqn{j}-loop.
+#' }
+#'
+#' The function relies on the existence of \code{Q}, \code{QQinv}, \code{W}, and \code{WWinv}
+#' in the parent environment to construct the projection weights.
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A1type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -477,22 +594,45 @@ A1type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A1vec * df$ipos)
 }
 
-#' Title
+#' Compute A2-Type Variance Component (Explicit IJ-Loop)
 #'
-#' @param df
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param IdPQ
-#' @param IdPW
-#' @param noisyi
-#' @param noisyj
+#' @description
+#' Calculates the \eqn{A_2} variance component using an explicit double loop over indices
+#' \eqn{i} and \eqn{j}, with vectorization over \eqn{k}. This implementation handles the
+#' asymmetric weighting structure (chaining "incoming" and "outgoing" weights) by constructing
+#' the necessary row and column vectors of the weighting matrix \eqn{G} on the fly.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}}.
+#' @param kpos Name of the column (unquoted) for the inner term \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the bias correction term \eqn{v^{(L)}}.
+#' @param IdPQ Numeric vector. The diagonal elements of the full projection matrix \eqn{P} (instruments + covariates).
+#' @param IdPW Numeric vector. The diagonal elements of the covariate projection matrix \eqn{P_W}.
+#' @param noisyi Logical. If \code{TRUE}, prints progress for the outer loop \eqn{i}.
+#' @param noisyj Logical. If \code{TRUE}, prints progress for the inner loop \eqn{j}.
+#'
+#' @details
+#' This function calculates the same quantity as \code{A2type_iloop_sum} but is optimized
+#' for memory-constrained environments where the full \eqn{N \times N} matrix \eqn{G} cannot
+#' be stored.
+#'
+#' \strong{Asymmetry Handling:}
+#' Unlike the \eqn{A_1} computation, which uses symmetric weights \eqn{G_{ik}}, this function
+#' explicitly constructs:
+#' \itemize{
+#'   \item \code{Girow}: The \eqn{i}-th row of \eqn{G} (outgoing weights \eqn{G_{ik}}).
+#'   \item \code{Gicol}: The \eqn{i}-th column of \eqn{G} (incoming weights \eqn{G_{ki}}).
+#' }
+#' It computes the interaction terms involving the chain \eqn{j \to i \to k} (or \eqn{G_{ji} G_{ik}})
+#' and the specific bias correction \eqn{A_{25}} involving \eqn{G_{ij} G_{ji}}.
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A2type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -574,22 +714,43 @@ A2type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A2vec * df$ipos)
 }
 
-#' Title
+#' Compute A3-Type Variance Component (Explicit IJ-Loop)
 #'
-#' @param df
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param IdPQ
-#' @param IdPW
-#' @param noisyi
-#' @param noisyj
+#' @description
+#' Calculates the \eqn{A_3} variance component using an explicit double loop over indices
+#' \eqn{i} and \eqn{j}, with vectorization over \eqn{k}. This implementation handles the
+#' "incoming" weighting structure (weights \eqn{G_{ji} G_{ki}} targeting \eqn{i}) by
+#' constructing the necessary column vectors of the weighting matrix \eqn{G} on the fly.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}}.
+#' @param kpos Name of the column (unquoted) for the inner term \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the bias correction term \eqn{v^{(L)}}.
+#' @param IdPQ Numeric vector. The diagonal elements of the full projection matrix \eqn{P}.
+#' @param IdPW Numeric vector. The diagonal elements of the covariate projection matrix \eqn{P_W}.
+#' @param noisyi Logical. If \code{TRUE}, prints progress for the outer loop \eqn{i}.
+#' @param noisyj Logical. If \code{TRUE}, prints progress for the inner loop \eqn{j}.
+#'
+#' @details
+#' This function calculates the same quantity as \code{A3type_iloop_sum} but uses the
+#' memory-efficient strategy of reconstructing weights row-by-row (or column-by-column).
+#'
+#' \strong{Weight Construction:}
+#' The function constructs the \eqn{i}-th column of the weighting matrix \eqn{G} as:
+#' \deqn{G_{\cdot i} = \frac{P_{\cdot i}}{\text{diag}(M)} - \frac{P_{W \cdot i}}{\text{diag}(M_W)}}
+#' This vector \code{Gi} corresponds to the weights \eqn{G_{ki}} for all \eqn{k}, which represents
+#' the influence of observation \eqn{k} on observation \eqn{i}.
+#'
+#' The term computed is:
+#' \deqn{S = \sum_{i} v_i^{(I)} \sum_{j \neq i} \sum_{k \neq i} G_{ji} v_j^{(J)} G_{ki} v_k^{(K)} W_{ijk}}
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A3type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -668,22 +829,47 @@ A3type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A3vec * df$ipos)
 }
 
-#' Title
+#' Compute A4-Type Variance Component (Explicit IJ-Loop)
 #'
-#' @param df
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param IdPQ
-#' @param IdPW
-#' @param noisyi
-#' @param noisyj
+#' @description
+#' Calculates the \eqn{A_4} variance component ("own-variance" bias correction) using an
+#' explicit double loop over indices \eqn{i} and \eqn{j}. This implementation handles the
+#' squared incoming weights (\eqn{G_{ji}^2}) by constructing the necessary column vectors
+#' of the weighting matrix \eqn{G} on the fly.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ji}^2}.
+#' @param kpos Name of the column (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param IdPQ Numeric vector. The diagonal elements of the full projection matrix \eqn{P}.
+#' @param IdPW Numeric vector. The diagonal elements of the covariate projection matrix \eqn{P_W}.
+#' @param noisyi Logical. If \code{TRUE}, prints progress for the outer loop \eqn{i}.
+#' @param noisyj Logical. If \code{TRUE}, prints progress for the inner loop \eqn{j}.
+#'
+#' @details
+#' This function calculates the same quantity as \code{A4type_iloop_sum} but uses a
+#' memory-efficient strategy.
+#'
+#' \strong{Term Definition:}
+#' The function estimates the bias component:
+#' \deqn{S = \sum_{i} v_i^{(I)} \sum_{j \neq i} G_{ji}^2 \widehat{Var}(v_j) W_{ij}}
+#' adjusted for leverage via the Sherman-Morrison expansion.
+#'
+#' \strong{Computational Strategy:}
+#' \itemize{
+#'   \item \strong{Outer Loop (i):} Constructs the column vector \eqn{G_{\cdot i}} (representing weights \eqn{G_{ki}}).
+#'   Squaring this vector gives the "own-variance" weights \eqn{G_{ki}^2}.
+#'   \item \strong{Inner Loop (j):} Iterates through specific observations to apply the
+#'   Leave-Three-Out correction logic for the variance estimator.
+#' }
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A4type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -761,22 +947,48 @@ A4type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = F
   sum(A4vec * df$ipos)
 }
 
-#' Title
+#' Compute A5-Type Variance Component (Explicit IJ-Loop)
 #'
-#' @param df
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param IdPQ
-#' @param IdPW
-#' @param noisyi
-#' @param noisyj
+#' @description
+#' Calculates the \eqn{A_5} variance component ("asymmetry" bias correction) using an
+#' explicit double loop over indices \eqn{i} and \eqn{j}. This implementation handles the
+#' cross-product of row and column weights (\eqn{G_{ik} G_{ki}}) by constructing the
+#' necessary vectors on the fly.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors specified by the position arguments.
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ik}G_{ki}}.
+#' @param kpos Name of the column (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param IdPQ Numeric vector. The diagonal elements of the full projection matrix \eqn{P}.
+#' @param IdPW Numeric vector. The diagonal elements of the covariate projection matrix \eqn{P_W}.
+#' @param noisyi Logical. If \code{TRUE}, prints progress for the outer loop \eqn{i}.
+#' @param noisyj Logical. If \code{TRUE}, prints progress for the inner loop \eqn{j}.
+#'
+#' @details
+#' This function calculates the same quantity as \code{A5type_iloop_sum} using a
+#' memory-efficient strategy.
+#'
+#' \strong{Asymmetry Bias:}
+#' This term captures the bias arising from the interaction of "outgoing" and "incoming"
+#' weights. It estimates:
+#' \deqn{S = \sum_{i} v_i^{(I)} \sum_{j \neq i} G_{ij} G_{ji} \widehat{Var}(v_j) W_{ij}}
+#'
+#' \strong{Computational Strategy:}
+#' \itemize{
+#'   \item \strong{Outer Loop (i):} Constructs both \code{Girow} (\eqn{G_{i\cdot}}) and
+#'   \code{Gicol} (\eqn{G_{\cdot i}}). The element-wise product of these vectors gives the
+#'   weight interaction \eqn{G_{ik} G_{ki}} required for this variance component.
+#'   \item \strong{Inner Loop (j):} Iterates through observations to apply the Leave-Three-Out
+#'   variance correction logic.
+#' }
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A5type_ijloop_sum <- function(df, ipos, jpos, kpos, lpos, IdPQ, IdPW, noisyi = FALSE, noisyj = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
