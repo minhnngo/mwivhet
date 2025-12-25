@@ -2,13 +2,52 @@
 % Please edit documentation in R/inference.R
 \name{GetSigMx}
 \alias{GetSigMx}
-\title{Title}
+\title{Compute Covariance Matrix of UJIVE Quadratic Forms}
 \usage{
 GetSigMx(df, groupW, group, X, Y, MX, MY, noisy = FALSE)
 }
 \arguments{
-\item{noisy}{}
+\item{df}{Data frame. Contains the observable variables and their projections.}
+
+\item{groupW}{Name of the covariate stratification variable (unquoted).}
+
+\item{group}{Name of the instrument grouping variable (unquoted).}
+
+\item{X}{Name of the endogenous regressor column (unquoted).}
+
+\item{Y}{Name of the outcome variable column (unquoted).}
+
+\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+
+\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+
+\item{noisy}{Logical. If \code{TRUE}, prints progress during variance component calculation.}
+}
+\value{
+A numeric vector of length 6: \code{c(sig11, sig22, sig33, sig12, sig23, sig13)}.
 }
 \description{
-Title
+Estimates the joint variance-covariance matrix of the three core quadratic forms used in
+UJIVE/LIML estimation: \eqn{Y'GY}, \eqn{X'GY}, and \eqn{X'GX}. This matrix is required
+for specification testing (e.g., J-test) and advanced inference on structural parameters.
+}
+\details{
+The function estimates the covariance matrix \eqn{\Sigma_\Psi} for the vector:
+\deqn{\Psi = [Y'GY, \quad X'GY, \quad X'GX]^T}
+
+The elements of the returned vector correspond to the upper triangle of \eqn{\Sigma_\Psi}:
+\itemize{
+\item \code{sig11}: \eqn{Var(Y'GY)}
+\item \code{sig22}: \eqn{Var(X'GY)}
+\item \code{sig33}: \eqn{Var(X'GX)}
+\item \code{sig12}: \eqn{Cov(Y'GY, X'GY)}
+\item \code{sig23}: \eqn{Cov(X'GY, X'GX)}
+\item \code{sig13}: \eqn{Cov(Y'GY, X'GX)}
+}
+
+The calculations rely on the symmetry of the weighting matrix \eqn{G} (valid for the
+grouped designs supported by \code{\link{A1type_sum}}) to simplify the fourth-moment expansions.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

@@ -2,13 +2,46 @@
 % Please edit documentation in R/inference.R
 \name{GetLM}
 \alias{GetLM}
-\title{Title}
+\title{Compute UJIVE Signal Component (Stratified Design)}
 \usage{
 GetLM(df, X, e, groupW, group, noisy = FALSE)
 }
 \arguments{
-\item{noisy}{}
+\item{df}{Data frame. Contains the observable variables and grouping indicators.}
+
+\item{X}{Name of the first variable column (unquoted), typically the endogenous regressor.}
+
+\item{e}{Name of the second variable column (unquoted), typically the outcome or residual.}
+
+\item{groupW}{Name of the covariate stratification variable (unquoted). Defines the blocks.}
+
+\item{group}{Name of the instrument grouping variable (unquoted). Defines the treatments within blocks.}
+
+\item{noisy}{Logical. If \code{TRUE}, prints progress of the stratum iteration.}
+}
+\value{
+A numeric scalar representing the sum of stratum-specific quadratic forms.
 }
 \description{
-Title
+Calculates the UJIVE "signal" or cross-product term \eqn{X' G e} for a design where
+instruments are nested within discrete covariate strata (e.g., Judges within Years).
+This function iterates through covariate groups to compute the quadratic form locally,
+handling the centering of instruments within each block.
+}
+\details{
+This function implements the estimator for the signal component \eqn{S} in a stratified design:
+\deqn{S = \sum_{s} e_s' [ U(P_{Q,s}) - U(P_{W,s}) ] X_s}
+
+Within each stratum \eqn{s}:
+\itemize{
+\item \eqn{P_{Q,s}} is the projection onto the instrument groups.
+\item \eqn{P_{W,s}} is the projection onto the stratum intercept (local mean).
+\item \eqn{U(P)} denotes the projection with diagonal elements removed and inverse-diagonal rescaling.
+}
+
+This corresponds to the numerator terms (\eqn{P_{XY}, P_{XX}}) for test inversion in
+designs with discrete controls.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

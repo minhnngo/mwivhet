@@ -2,13 +2,39 @@
 % Please edit documentation in R/l3o_variance.R
 \name{L3Ovar_iloop_nocov}
 \alias{L3Ovar_iloop_nocov}
-\title{Title}
+\title{Compute L3O Variance for Score Statistic (No Covariates, General Symmetric P)}
 \usage{
 L3Ovar_iloop_nocov(X, e, P)
 }
 \arguments{
-\item{P}{}
+\item{X}{Numeric vector. The endogenous regressor.}
+
+\item{e}{Numeric vector. The residual vector.}
+
+\item{P}{Matrix. The \eqn{N \times N} projection matrix (must be symmetric).}
+}
+\value{
+A numeric scalar representing the estimated variance.
 }
 \description{
-Title
+Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
+in the "No Covariates" setting. Unlike the group-optimized functions, this implementation
+loops over every observation \eqn{i}, making it suitable for any design where the
+weighting matrix is symmetric (\eqn{G = P}), even if it lacks a strict block-diagonal structure.
+}
+\details{
+This function implements the variance estimator \eqn{\hat{V}_{LM}} under the assumption
+that there are no covariates, implying \eqn{G = P} and \eqn{P} is symmetric.
+
+\strong{Algorithm:}
+The function iterates through each observation \eqn{i} (1 to \eqn{N}). Inside the loop, it:
+\enumerate{
+\item Extracts the \eqn{i}-th column of \eqn{P} and \eqn{M}.
+\item Computes the L3O determinant adjustments \eqn{D_{ijk}} for all \eqn{k}.
+\item Calculates all five variance components (\eqn{A_1 \dots A_5}) simultaneously using
+pre-computed vector products to maximize efficiency.
+}
+
+This implementation is slower than \code{L3Ovar_gloop_nocov} for simple grouped designs but
+is more general.
 }

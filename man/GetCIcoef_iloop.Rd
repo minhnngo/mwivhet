@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference.R
 \name{GetCIcoef_iloop}
 \alias{GetCIcoef_iloop}
-\title{Title}
+\title{Compute Quadratic Coefficients for CI (General Design)}
 \usage{
 GetCIcoef_iloop(
   df,
@@ -19,8 +19,46 @@ GetCIcoef_iloop(
 )
 }
 \arguments{
-\item{noisy}{}
+\item{df}{Data frame. Contains the observable variables \eqn{X, Y} and their projections.}
+
+\item{P}{Matrix. The full projection matrix \eqn{P}.}
+
+\item{G}{Matrix. The UJIVE weighting matrix \eqn{G}.}
+
+\item{X}{Name of the endogenous regressor column (unquoted).}
+
+\item{Y}{Name of the outcome variable column (unquoted).}
+
+\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+
+\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+
+\item{Z}{Matrix. The instrument matrix.}
+
+\item{W}{Matrix. The covariate matrix.}
+
+\item{q}{Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).}
+
+\item{noisy}{Logical. If \code{TRUE}, prints progress during variance component calculation.}
+}
+\value{
+A numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
-Title
+Calculates the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
+used to construct confidence intervals for \eqn{\beta} in general instrumental variable designs.
+This function supports asymmetric weighting matrices (e.g., UJIVE with continuous covariates)
+by using the fully generalized \code{_iloop} variance estimators.
+}
+\details{
+This is the most general version of the confidence interval coefficient calculator.
+It does not assume symmetry of the weighting matrix \eqn{G}. Consequently, it computes
+all five distinct variance components (\eqn{A_1} through \eqn{A_5}) for each term in the
+polynomial expansion of \eqn{\hat{V}(\beta)}.
+
+The function explicitly constructs the diagonal adjustments for the UJIVE signal calculation
+using the matrices \eqn{Z} and \eqn{W}.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/l3o_variance.R
 \name{L3Ovar_ijloop_cov}
 \alias{L3Ovar_ijloop_cov}
-\title{Title}
+\title{Leave-Three-Out Variance Estimator (Nested Loop Implementation)}
 \usage{
 L3Ovar_ijloop_cov(
   X,
@@ -20,8 +20,59 @@ L3Ovar_ijloop_cov(
 )
 }
 \arguments{
-\item{noisyj}{}
+\item{X}{A numeric vector of length n containing the endogenous variable.}
+
+\item{e}{A numeric vector of length n containing the residuals ($e = Y - X\beta_0$).}
+
+\item{MX}{A numeric vector representing the product of the annihilator matrix M and X
+($M \\%*\\% X$). Passed as an argument to avoid re-computation.}
+
+\item{Me}{A numeric vector representing the product of the annihilator matrix M and e
+($M \\%*\\% e$). Passed as an argument to avoid re-computation.}
+
+\item{W}{A numeric matrix of covariates (controls).}
+
+\item{Q}{A numeric matrix of instruments (including covariates).}
+
+\item{WWWinv}{A numeric matrix representing the inverse of the gram matrix of W ($(W'W)^{-1}$).}
+
+\item{QQQinv}{A numeric matrix representing the inverse of the gram matrix of Q ($(Q'Q)^{-1}$).}
+
+\item{IdPQ}{A numeric vector containing the diagonal elements of the projection matrix $P_Q$.}
+
+\item{IdPW}{A numeric vector containing the diagonal elements of the projection matrix $P_W$.}
+
+\item{noisyi}{A logical indicating whether to print progress for the outer loop (i). Defaults to TRUE.}
+
+\item{noisyj}{A logical indicating whether to print progress for the inner loop (j). Defaults to FALSE.}
+}
+\value{
+A scalar numeric value representing the estimated variance $\hat{V}_{LM}$.
 }
 \description{
-Title
+Calculates the consistent variance estimator ($\hat{V}_{LM}$) for the Lagrange Multiplier (LM)
+test statistic using an explicit nested loop structure.
+
+This function performs the same statistical estimation as \code{L3Ovar_iloop_cov} but constructs
+the weighting matrix G dynamically from instruments (Q) and covariates (W). It iterates explicitly
+over indices i and j, vectorizing the third summation index k. This implementation is generally
+slower but useful for verifying results or when the full G matrix is too large to store in memory.
+}
+\details{
+The function calculates the variance estimator defined in Equation (9) of Yap (2025):
+\deqn{\hat{V}_{LM} = A_1 + A_2 + A_3 + A_4 + A_5}
+
+Unlike the vectorized version, this function computes the rows and columns of the weighting
+matrix G on-the-fly inside the loop using the UJIVE formula:
+\deqn{G_{ij} = \frac{P_{Q,ij}}{M_{Q,ii}} - \frac{P_{W,ij}}{M_{W,ii}}}
+
+The triple summation required for the variance components is handled by:
+\enumerate{
+\item Outer loop over $i$.
+\item Inner loop over $j$.
+\item Vectorized operations over the vectors to handle index $k$.
+}
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
 }

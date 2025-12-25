@@ -2,13 +2,48 @@
 % Please edit documentation in R/l3o_variance.R
 \name{L3Ovar_gloop_cov}
 \alias{L3Ovar_gloop_cov}
-\title{Title}
+\title{Compute L3O Variance for Score Statistic (Grouped Design)}
 \usage{
 L3Ovar_gloop_cov(df, group, groupW, X, e, MX, Me)
 }
 \arguments{
-\item{Me}{}
+\item{df}{Data frame. Contains the data vectors and grouping variables.}
+
+\item{group}{Name of the instrument grouping variable (unquoted).}
+
+\item{groupW}{Name of the covariate stratification variable (unquoted).}
+
+\item{X}{Name of the endogenous regressor column (unquoted).}
+
+\item{e}{Name of the residual column (unquoted).}
+
+\item{MX}{Name of the column (unquoted) containing \eqn{M_i X_i} (leverage-adjusted regressor).}
+
+\item{Me}{Name of the column (unquoted) containing \eqn{M_i e_i} (leverage-adjusted residual).}
+}
+\value{
+A numeric scalar representing the estimated variance.
 }
 \description{
-Title
+Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
+in a grouped instrument design with covariates. This function simultaneously computes
+all five variance components (\eqn{A_1} through \eqn{A_5}) by exploiting the block-diagonal
+symmetry of the projection matrices.
+}
+\details{
+This function implements the variance estimator \eqn{\hat{V}_{LM}} for the Limited Information
+Maximum Likelihood (LIML) or UJIVE estimator. It computes:
+\deqn{\hat{V} = A_1 + 2A_2 + A_3 - A_4 - A_5}
+
+Because the design implies symmetric weighting matrices (\eqn{G_{ij} = G_{ji}}), the function
+simplifies the asymmetric components (\eqn{A_2, A_3}) to use the same logic as \eqn{A_1},
+and collapses \eqn{A_5} to use the same squared-weight logic as \eqn{A_4}.
+
+\strong{Components:}
+\itemize{
+\item \eqn{A_1}: Variance of the first-stage signal (involving \eqn{X_j X_k}).
+\item \eqn{A_2}: Covariance between signal and error (involving \eqn{X_j e_k}).
+\item \eqn{A_3}: Variance of the error projection (involving \eqn{e_j e_k}).
+\item \eqn{A_4, A_5}: Bias corrections for "own-observation" variance contributions.
+}
 }

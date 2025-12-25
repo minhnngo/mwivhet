@@ -2,13 +2,33 @@
 % Please edit documentation in R/inference.R
 \name{GetCIvals}
 \alias{GetCIvals}
-\title{Title}
+\title{Calculate Quadratic Roots for Confidence Intervals}
 \usage{
 GetCIvals(CIcoef)
 }
 \arguments{
-\item{CIcoef}{}
+\item{CIcoef}{Numeric vector of length 3. The coefficients \eqn{(a, b, c)} of the quadratic
+inequality, typically obtained from \code{\link{GetCIcoef}}.}
+}
+\value{
+A numeric vector of length 2 containing the two roots.
 }
 \description{
-Title
+Computes the roots of the quadratic equation \eqn{a\beta^2 + b\beta + c = 0}.
+These roots serve as the boundaries for the confidence sets constructed by inverting
+the UJIVE/LIML score test.
+}
+\details{
+This function applies the standard quadratic formula:
+\deqn{\beta_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}
+
+\strong{Warning:} This function does not check the sign of the discriminant. It is intended
+to be called by a wrapper function (like \code{\link{GetCItypebd}}) that first verifies
+the existence of real roots (i.e., \eqn{b^2 - 4ac \ge 0}).
+
+Depending on the sign of \eqn{a} (convexity), these values represent either the endpoints
+of a bounded confidence interval or the inner boundaries of a disjoint ("donut") confidence set.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

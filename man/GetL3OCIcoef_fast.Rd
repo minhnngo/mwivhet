@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference.R
 \name{GetL3OCIcoef_fast}
 \alias{GetL3OCIcoef_fast}
-\title{Title}
+\title{Compute Quadratic Coefficients for CI (Stratified Asymmetric)}
 \usage{
 GetL3OCIcoef_fast(
   df,
@@ -17,8 +17,44 @@ GetL3OCIcoef_fast(
 )
 }
 \arguments{
-\item{noisy}{}
+\item{df}{Data frame. Contains the observable variables and grouping indicators.}
+
+\item{groupW}{Name of the covariate stratification variable (unquoted).}
+
+\item{groupQ}{Name of the instrument grouping variable (unquoted).}
+
+\item{X}{Name of the endogenous regressor column (unquoted).}
+
+\item{Y}{Name of the outcome variable column (unquoted).}
+
+\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+
+\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+
+\item{q}{Numeric. The critical value for test inversion (typically \eqn{1.96^2}).}
+
+\item{noisy}{Logical. If \code{TRUE}, prints progress.}
+}
+\value{
+A numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
-Title
+Calculates the coefficients \eqn{(a, b, c)} for the confidence interval quadratic inequality
+in a general design that includes both grouping (stratification) and covariates.
+This function is optimized for designs where projection matrices are block-diagonal
+with respect to \code{groupW} but potentially asymmetric within blocks due to covariate adjustments.
+}
+\details{
+This function performs a "Stratified Mega-Loop":
+\enumerate{
+\item \strong{Stratification:} Splits data by \code{groupW}. Computes local projection matrices
+\eqn{P_Q} and \eqn{P_W} for each stratum.
+\item \strong{Asymmetry:} Calculates the full UJIVE weighting matrix \eqn{G = U(P_Q) - U(P_W)} locally.
+Since \eqn{G} is asymmetric, it computes all 5 variance components.
+\item \strong{Optimization:} Accumulates all polynomial coefficients for \eqn{\hat{V}(\beta)}
+simultaneously using extensive pre-calculation of vector products.
+}
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

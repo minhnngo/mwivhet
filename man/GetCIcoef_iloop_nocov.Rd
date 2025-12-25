@@ -2,13 +2,41 @@
 % Please edit documentation in R/inference.R
 \name{GetCIcoef_iloop_nocov}
 \alias{GetCIcoef_iloop_nocov}
-\title{Title}
+\title{Compute Quadratic Coefficients for CI (No Covariates, General P)}
 \usage{
 GetCIcoef_iloop_nocov(X, Y, P, q = qnorm(0.975)^2, noisy = FALSE)
 }
 \arguments{
-\item{noisy}{}
+\item{X}{Numeric vector. The endogenous regressor.}
+
+\item{Y}{Numeric vector. The outcome variable.}
+
+\item{P}{Matrix. The \eqn{N \times N} symmetric projection matrix.}
+
+\item{q}{Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).}
+
+\item{noisy}{Logical. If \code{TRUE}, prints progress through the N loops.}
+}
+\value{
+A numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
-Title
+Calculates the coefficients \eqn{(a, b, c)} for the confidence interval quadratic inequality
+in the "No Covariates" setting (\eqn{G = P}), but for \strong{general symmetric projection matrices}.
+This function performs a highly optimized single-pass loop to compute all polynomial coefficients
+of the variance estimator \eqn{\hat{V}(\beta)} simultaneously.
+}
+\details{
+This function is the "heavy lifting" solver for generic symmetric designs (e.g., Ridge IV, Kernel IV).
+It inverts the test statistic:
+\deqn{\frac{(P_{XY} - \beta P_{XX})^2}{C_2 \beta^2 + C_1 \beta + C_0} \leq q}
+
+\strong{Optimization:}
+Rather than calling variance estimators multiple times, it decomposes the variance formula
+into geometric components (depending only on \eqn{P}) and data components (\eqn{X, Y}).
+It iterates through observations \eqn{i} once, accumulating the weighted contributions
+for \eqn{C_0}, \eqn{C_1}, and \eqn{C_2} in parallel.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

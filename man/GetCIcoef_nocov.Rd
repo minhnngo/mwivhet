@@ -2,13 +2,45 @@
 % Please edit documentation in R/inference.R
 \name{GetCIcoef_nocov}
 \alias{GetCIcoef_nocov}
-\title{Title}
+\title{Compute Quadratic Coefficients for CI (No Covariates)}
 \usage{
 GetCIcoef_nocov(df, groupZ, X, Y, MX, MY, q = qnorm(0.975)^2, noisy = FALSE)
 }
 \arguments{
-\item{noisy}{}
+\item{df}{Data frame. Contains the observable variables \eqn{X, Y} and their projections.}
+
+\item{groupZ}{Name of the instrument grouping variable (unquoted).}
+
+\item{X}{Name of the endogenous regressor column (unquoted).}
+
+\item{Y}{Name of the outcome variable column (unquoted).}
+
+\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+
+\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+
+\item{q}{Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).}
+
+\item{noisy}{Logical. If \code{TRUE}, prints progress during variance component calculation.}
+}
+\value{
+A numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
-Title
+Calculates the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
+used to construct confidence intervals for \eqn{\beta} in the "Many Means" setting (no covariates).
+This function inverts the UJIVE/LIML score test using optimized variance estimators for
+block-diagonal designs.
+}
+\details{
+This function performs the same logic as \code{\link{GetCIcoef}} but uses the specialized
+\code{_nocov} helper functions (\code{\link{A1type_sum_nocov}}, \code{\link{A4type_sum_nocov}})
+to compute variance components. This is appropriate for designs where instruments form
+mutually exclusive groups and no global covariates link them.
+
+The returned coefficients define the confidence set:
+\deqn{\{ \beta : (P_{XX}^2 - q C_2)\beta^2 + (-2 P_{XY} P_{XX} - q C_1)\beta + (P_{XY}^2 - q C_0) \leq 0 \}}
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

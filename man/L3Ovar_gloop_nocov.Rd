@@ -2,13 +2,45 @@
 % Please edit documentation in R/l3o_variance.R
 \name{L3Ovar_gloop_nocov}
 \alias{L3Ovar_gloop_nocov}
-\title{Title}
+\title{Compute L3O Variance for Score Statistic (No Covariates)}
 \usage{
 L3Ovar_gloop_nocov(df, group, X, e, MX, Me)
 }
 \arguments{
-\item{Me}{}
+\item{df}{Data frame. Contains the data vectors and grouping variables.}
+
+\item{group}{Name of the instrument grouping variable (unquoted).}
+
+\item{X}{Name of the endogenous regressor column (unquoted).}
+
+\item{e}{Name of the residual column (unquoted).}
+
+\item{MX}{Name of the column (unquoted) containing \eqn{M_i X_i} (leverage-adjusted regressor).}
+
+\item{Me}{Name of the column (unquoted) containing \eqn{M_i e_i} (leverage-adjusted residual).}
+}
+\value{
+A numeric scalar representing the total estimated variance.
 }
 \description{
-Title
+Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
+in a "Many Means" design (mutually exclusive instrument groups with no covariates).
+This function leverages the block-diagonal structure of the projection matrix to
+compute all variance components (\eqn{A_1} through \eqn{A_5}) locally within each group.
+}
+\details{
+This function implements the variance estimator \eqn{\hat{V}_{LM}} for the case where
+\eqn{G = P} (symmetric weights) and the design matrix is block-diagonal.
+
+\strong{Optimization:}
+Instead of operating on \eqn{N \times N} matrices, the function iterates through groups.
+Within each group subset, the projection matrix is dense but small. The function computes:
+\deqn{\hat{V} = \sum_g (A_{1g} + 2A_{2g} + A_{3g} - A_{4g} - A_{5g})}
+
+\strong{Components:}
+\itemize{
+\item \eqn{A_1, A_2, A_3}: Signal, covariance, and error variance terms calculated using
+the symmetric weighting matrix \eqn{G=P}.
+\item \eqn{A_4, A_5}: Bias correction terms utilizing squared weights \eqn{G_{ij}^2}.
+}
 }

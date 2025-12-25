@@ -2,7 +2,7 @@
 % Please edit documentation in R/datagen.R
 \name{GenData_cov}
 \alias{GenData_cov}
-\title{Title}
+\title{Generate Data with Covariates and Binary Endogenous Regressor}
 \usage{
 GenData_cov(
   S = 5,
@@ -18,8 +18,62 @@ GenData_cov(
 )
 }
 \arguments{
-\item{c}{}
+\item{S}{Numeric. Concentration parameter \eqn{\mu^2}, scaling the instrument strength.}
+
+\item{p1}{Numeric (0 to 1). Probability parameter controlling the correlation between
+the first-stage error \eqn{v} and the treatment heterogeneity \eqn{\xi}.}
+
+\item{Het}{Numeric. Heterogeneity parameter, scaling the magnitude of \eqn{\xi}.}
+
+\item{sigeps}{Numeric. Standard deviation of the structural error \eqn{\varepsilon}.}
+
+\item{sigev}{Numeric. Coefficient governing the correlation between \eqn{\varepsilon} and \eqn{v}.}
+
+\item{beta}{Numeric. Average Treatment Effect (ATE).}
+
+\item{beta0}{Numeric. Null hypothesis value for \eqn{\beta}.}
+
+\item{omega}{Numeric. Scaling parameter for the covariate effects \eqn{\gamma}.}
+
+\item{K}{Integer. Number of instrument groups minus one (scaled for block construction).}
+
+\item{c}{Integer. Number of observations per group (balanced).}
+}
+\value{
+A data frame containing:
+\item{group}{Instrument group identifier.}
+\item{groupW}{Covariate stratum identifier.}
+\item{pi}{Instrument effect \eqn{\pi}.}
+\item{gammad}{Covariate effect \eqn{\gamma}.}
+\item{v}{Latent first-stage variable (Uniform).}
+\item{xi}{Random treatment effect heterogeneity.}
+\item{X}{Binary endogenous regressor (-1 or 1).}
+\item{Y}{Outcome variable.}
+\item{e}{Residual under the null.}
+\item{MX, Me, MY}{Variables projected onto the annihilator \eqn{M = I - P}.}
 }
 \description{
-Title
+Simulates data from a "Many Means" instrumental variable model that includes discrete
+covariates and a binary endogenous regressor generated via a threshold crossing model.
+The function incorporates "Essential Heterogeneity," where the random treatment coefficient
+is correlated with the first-stage selection error.
+}
+\details{
+The Data Generating Process (DGP) is structured as follows:
+
+\strong{Design Matrix:}
+\itemize{
+\item \strong{Covariates (W):} Defined by pairs of instrument groups (e.g., strata).
+\item \strong{Instruments (Z):} Nested within covariates (e.g., judges within years).
+\item \strong{Weights:} The UJIVE weighting matrix \eqn{G} is computed as \eqn{U(P_{[Z,W]}) - U(P_W)}.
+}
+
+\strong{Structural Equations:}
+\deqn{X_i = 2 \cdot \mathbb{I}(v_i < \pi_{g(i)} + \gamma_{d(i)}) - 1}
+\deqn{Y_i = X_i (\beta + \xi_i) + \gamma_{d(i)} + \varepsilon_i}
+
+\strong{Heterogeneity:}
+The variable \eqn{X} is binary (taking values -1, 1). The random slope \eqn{\xi_i} is
+drawn conditionally on the first-stage latent variable \eqn{v_i}, inducing correlation
+between selection into treatment and treatment gains (Essential Heterogeneity).
 }

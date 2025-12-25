@@ -2,13 +2,56 @@
 % Please edit documentation in R/l3o_variance.R
 \name{L3Ovar_iloop_cov}
 \alias{L3Ovar_iloop_cov}
-\title{Title}
+\title{Leave-Three-Out Variance Estimator for LM Statistic}
 \usage{
 L3Ovar_iloop_cov(X, e, P, G, noisy = FALSE)
 }
 \arguments{
-\item{noisy}{}
+\item{X}{A numeric vector of length n containing the endogenous variable.}
+
+\item{e}{A numeric vector of length n containing the residuals under the null hypothesis
+($e = Y - X\beta_0$).}
+
+\item{P}{A numeric n x n projection matrix of the instruments (and potentially covariates).
+Corresponds to matrix $P$ or $H_Q$ in the paper.}
+
+\item{G}{A numeric n x n weighting matrix used in the JIVE/UJIVE estimator.
+For standard JIVE, G is equal to P. For UJIVE with covariates, G is the adjusted
+matrix defined in Section 3.1.}
+
+\item{noisy}{A logical indicating whether to print progress dots during the loop.
+Defaults to FALSE.}
+}
+\value{
+A scalar numeric value representing the estimated variance $\hat{V}_{LM}$.
 }
 \description{
-Title
+Calculates the consistent variance estimator ($\hat{V}_{LM}$) for the Lagrange Multiplier (LM)
+test statistic. This estimator is robust to both many weak instruments and heterogeneous treatment effects.
+
+The function implements the "Leave-Three-Out" (L3O) approach proposed in Yap (2025),
+which corrects for biases in variance estimation that arise when reduced-form coefficients
+are not consistently estimable (e.g., due to many instruments).
+}
+\details{
+The function computes the variance estimator defined in Equation (9) of the paper:
+\deqn{\hat{V}_{LM} = A_1 + A_2 + A_3 + A_4 + A_5}
+
+It iterates through each observation $i$ to compute the necessary adjustments
+(Leave-Three-Out determinants $D_{ijk}$) and aggregates the components using
+optimized matrix operations to handle the double sums over $j$ and $k$.
+
+Specifically:
+\itemize{
+\item \strong{A1-A3} capture the core variance components involving interactions between
+the instruments, endogenous variable, and residuals.
+\item \strong{A4-A5} are correction terms that account for the variability from estimating
+the reduced-form coefficients (which cannot be treated as fixed in the many-instrument setting).
+}
+
+The calculation relies on determinants $D_{ij}$ and $D_{ijk}$ derived from the annihilator
+matrix $M = I - P$ to ensure the estimator is unbiased.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
 }

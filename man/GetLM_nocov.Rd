@@ -2,13 +2,37 @@
 % Please edit documentation in R/inference.R
 \name{GetLM_nocov}
 \alias{GetLM_nocov}
-\title{Title}
+\title{Compute UJIVE Signal Component (No Covariates)}
 \usage{
 GetLM_nocov(df, X, e, groupZ, noisy = FALSE)
 }
 \arguments{
-\item{noisy}{}
+\item{df}{Data frame. Contains the observable variables and grouping indicator.}
+
+\item{X}{Name of the first variable column (unquoted), typically the endogenous regressor.}
+
+\item{e}{Name of the second variable column (unquoted), typically the outcome or residual.}
+
+\item{groupZ}{Name of the instrument grouping variable (unquoted).}
+
+\item{noisy}{Logical. If \code{TRUE}, prints progress of the group iteration.}
+}
+\value{
+A numeric scalar representing the total sum of group-specific quadratic forms.
 }
 \description{
-Title
+Calculates the UJIVE "signal" or cross-product term \eqn{X' G e} for the "Many Means" design.
+This function exploits the block-diagonal structure of the projection matrix implied by
+mutually exclusive instrument groups to compute the quadratic form via efficient group-wise summation.
+}
+\details{
+This function computes the scalar:
+\deqn{S = \sum_{g=1}^J e_g' [ (I-D_{P_g})^{-1}(P_g - D_{P_g}) ] X_g}
+where \eqn{P_g} is the projection matrix onto the intercept for group \eqn{g} (i.e., the group mean).
+
+This calculation corresponds to the numerator components (\eqn{P_{XY}, P_{XX}}) of the
+score statistic variance estimator in designs without covariates.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }

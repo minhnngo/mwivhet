@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference.R
 \name{GetCIcoef_ijloop}
 \alias{GetCIcoef_ijloop}
-\title{Title}
+\title{Compute Quadratic Coefficients for CI (Memory-Efficient General)}
 \usage{
 GetCIcoef_ijloop(
   df,
@@ -20,8 +20,54 @@ GetCIcoef_ijloop(
 )
 }
 \arguments{
-\item{noisyj}{}
+\item{df}{Data frame. Contains the observable variables \eqn{X, Y} and their projections.}
+
+\item{IdPW}{Numeric vector. The diagonal elements \eqn{1 - P_{W,ii}} (inverse diagonals of covariate projection).}
+
+\item{IdPQ}{Numeric vector. The diagonal elements \eqn{1 - P_{Q,ii}} (inverse diagonals of full projection).}
+
+\item{dPW}{Numeric vector. The diagonal elements \eqn{P_{W,ii}}.}
+
+\item{dPQ}{Numeric vector. The diagonal elements \eqn{P_{Q,ii}}.}
+
+\item{X}{Name of the endogenous regressor column (unquoted).}
+
+\item{Y}{Name of the outcome variable column (unquoted).}
+
+\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+
+\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+
+\item{q}{Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).}
+
+\item{noisyi}{Logical. If \code{TRUE}, prints progress for the outer loops.}
+
+\item{noisyj}{Logical. If \code{TRUE}, prints progress for the inner loops.}
+}
+\value{
+A numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
-Title
+Calculates the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
+used to construct confidence intervals for \eqn{\beta}. This function is the memory-efficient
+alternative to \code{\link{GetCIcoef_iloop}}. It handles general asymmetric designs (e.g., UJIVE
+with continuous covariates) without storing full \eqn{N \times N} projection matrices.
+}
+\details{
+This function performs the exact same algebraic inversion as \code{GetCIcoef_iloop} but uses
+the \code{_ijloop} variance estimators.
+
+\strong{Trade-off:}
+\itemize{
+\item \strong{Pros:} extremely low memory footprint. Can handle larger \eqn{N} than \code{iloop}
+as long as time is not a constraint.
+\item \strong{Cons:} Significantly slower (\eqn{O(N^3)}) due to explicit R loops over \eqn{i} and \eqn{j}.
+}
+
+\strong{Global Scope Warning:}
+The function calls \code{GetLM_WQ} using objects \code{W} and \code{Q}. These are not passed as arguments
+and must exist in the environment where this function is called.
+}
+\references{
+Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
 }
