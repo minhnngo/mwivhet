@@ -1,18 +1,40 @@
-#' Title
+#' Compute Group-Level A1-Type Variance Component
 #'
-#' @param df
-#' @param group
-#' @param groupW
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates the \eqn{A_1} variance component by exploiting the discrete group structure of
+#' the instruments. Instead of iterating over every observation \eqn{i}, this function iterates
+#' over instrument groups (e.g., judges) and covariate strata, using representative observations
+#' to efficiently compute the Leave-Three-Out (L3O) variance sums.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors and grouping variables.
+#' @param group Name of the instrument grouping variable (unquoted) defining the clusters (e.g., judges).
+#' @param groupW Name of the covariate stratification variable (unquoted) (e.g., time periods).
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}}.
+#' @param kpos Name of the column (unquoted) for the inner term \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the bias correction term \eqn{v^{(L)}}.
+#' @param noisy Logical. If \code{TRUE}, prints progress of the stratification loop.
+#'
+#' @details
+#' This function implements the \eqn{A_1} estimator (Signal Variance) specifically for
+#' discrete instrument settings where projection matrices are block-diagonal with respect
+#' to \code{groupW} and constant within \code{group}.
+#'
+#' \strong{Algorithm:}
+#' \enumerate{
+#'   \item \strong{Stratification:} Splits data by \code{groupW}. Projection matrices \eqn{P} and \eqn{G}
+#'   are constructed locally within each stratum to reduce computational cost.
+#'   \item \strong{Pruning:} Removes groups with fewer than 3 observations (required for L3O validity).
+#'   \item \strong{Group Aggregation:} Iterates over groups \eqn{g}. Uses \code{\link{ivectomats}} to
+#'   compute the L2O-adjusted sum of outer weights for all members of group \eqn{g} simultaneously.
+#' }
+#'
+#' @return A numeric scalar representing the total variance component.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A1type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE) {
   A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0, max(df$group))
 
@@ -97,21 +119,44 @@ A1type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE)
   sum(ret)
 }
 
-#' Title
+#' Compute Group-Level A4-Type Variance Component
 #'
-#' @param df
-#' @param group
-#' @param groupW
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates the \eqn{A_4} variance component ("own-variance" bias correction) by exploiting
+#' the discrete group structure of the instruments. This function iterates over instrument
+#' groups (e.g., judges) and covariate strata to efficiently compute the bias arising from
+#' squared diagonal weights \eqn{G_{ji}^2}.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors and grouping variables.
+#' @param group Name of the instrument grouping variable (unquoted).
+#' @param groupW Name of the covariate stratification variable (unquoted).
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ji}^2}.
+#' @param kpos Name of the column (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param noisy Logical. If \code{TRUE}, prints progress of the stratification loop.
+#'
+#' @details
+#' This function implements the \eqn{A_4} estimator for discrete instrument designs.
+#' It estimates the positive bias component:
+#' \deqn{S = \sum_{g} \sum_{i \in g} v_i^{(I)} \sum_{j \notin g} G_{ji}^2 \widehat{Var}(v_j) W_{ij}}
+#'
+#' \strong{Algorithm:}
+#' \enumerate{
+#'   \item \strong{Stratification:} Computes projection matrices locally within \code{groupW} strata.
+#'   \item \strong{Representative Calculation:} For each group \eqn{g}, extracts the column
+#'   vector of weights \eqn{G_{\cdot g}} (constant for all \eqn{i \in g}). Squaring this
+#'   vector captures the "own-variance" influence \eqn{G_{jg}^2}.
+#'   \item \strong{Aggregation:} Uses \code{\link{ivectomats}} to aggregate outer weights
+#'   over the group, applying L3O corrections efficiently.
+#' }
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A4type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE) {
   A41vecs <- A42vecs <- A43vecs <- A44vecs <- rep(0, max(df$group))
 
@@ -201,20 +246,45 @@ A4type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE)
 }
 
 
-#' Title
+#' Compute A1 Variance Component (No Covariates)
 #'
-#' @param df
-#' @param groupZ
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates the \eqn{A_1} variance component (Signal Variance) for the specific case
+#' where there are no covariates. This function exploits the resulting block-diagonal
+#' structure of the projection matrix to stratify calculations by instrument group,
+#' significantly improving computational efficiency.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors and the grouping variable.
+#' @param groupZ Name of the instrument grouping variable (unquoted). In the no-covariate
+#'   setting, this defines the mutually exclusive clusters (e.g., judges).
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}}.
+#' @param kpos Name of the column (unquoted) for the inner term \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the bias correction term \eqn{v^{(L)}}.
+#' @param noisy Logical. If \code{TRUE}, prints progress of the group iteration.
+#'
+#' @details
+#' This function implements the \eqn{A_1} estimator for the "Many Means" model or
+#' simple One-Way Layout designs without additional controls.
+#'
+#' \strong{Simplifications:}
+#' \itemize{
+#'   \item \strong{Stratification:} Because there are no covariates linking observations
+#'   across groups, the projection matrix \eqn{P} is strictly block-diagonal. The code
+#'   iterates through each group \eqn{g}, treating it as an independent dataset.
+#'   \item \strong{Weighting:} The UJIVE weighting matrix simplifies to \eqn{G = U(P_Z)},
+#'   as there is no covariate projection \eqn{P_W} to partial out.
+#' }
+#'
+#' The term computed corresponds to the variance of the first-stage fitted values (signal),
+#' corrected for finite-sample bias using the Leave-Three-Out (L3O) approach.
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A1type_sum_nocov <- function(df, groupZ, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$groupZ <- eval(substitute(groupZ), df)
   A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0, max(df$groupZ))
@@ -278,20 +348,42 @@ A1type_sum_nocov <- function(df, groupZ, ipos, jpos, kpos, lpos, noisy = FALSE) 
   sum(ret)
 }
 
-#' Title
+#' Compute A4 Variance Component (No Covariates)
 #'
-#' @param df
-#' @param groupZ
-#' @param ipos
-#' @param jpos
-#' @param kpos
-#' @param lpos
-#' @param noisy
+#' @description
+#' Calculates the \eqn{A_4} variance component ("own-variance" bias correction) for the
+#' specific case where there are no covariates. This function exploits the block-diagonal
+#' structure of the projection matrix in the absence of global controls to stratify
+#' calculations by instrument group, optimizing performance.
 #'
-#' @returns
+#' @param df Data frame. Contains the data vectors and the grouping variable.
+#' @param groupZ Name of the instrument grouping variable (unquoted). In the no-covariate
+#'   setting, this defines the mutually exclusive clusters (e.g., judges).
+#' @param ipos Name of the column (unquoted) for the outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Name of the column (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ji}^2}.
+#' @param kpos Name of the column (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Name of the column (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param noisy Logical. If \code{TRUE}, prints progress of the group iteration.
+#'
+#' @details
+#' This function implements the \eqn{A_4} estimator for the "Many Means" model. It estimates
+#' the positive bias arising from the squared diagonal weights \eqn{G_{ji}^2}, which must be
+#' subtracted from the final variance estimate.
+#'
+#' \strong{Simplifications:}
+#' \itemize{
+#'   \item \strong{Block Independence:} Since no covariates link observations across groups,
+#'   the dataset is split by \code{groupZ}, and calculations are performed locally on subsets.
+#'   \item \strong{Simplified Weights:} The UJIVE weight \eqn{G} is computed as \eqn{U(P_Z)},
+#'   omitting the covariate projection term \eqn{U(P_W)}.
+#' }
+#'
+#' @return A numeric scalar.
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @noRd
-#'
-#' @examples
 A4type_sum_nocov <- function(df, groupZ, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$groupZ <- eval(substitute(groupZ), df)
   A41vecs <- A42vecs <- A43vecs <- A44vecs <- rep(0, max(df$groupZ))
