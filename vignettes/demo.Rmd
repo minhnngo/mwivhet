@@ -1,0 +1,121 @@
+---
+title: "Demo for the mwivhet package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to L3O Methods}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(mwivhet)
+```
+
+```{r}
+# Load variables from the built-in dataset 'dnc'
+X <- dnc$X
+Y <- dnc$Y
+e <- dnc$e
+group <- dnc$group
+# MX is the residual from regressing X on Z
+MX <- dnc$MX
+# Me is the residual from regressing e on Z
+Me <- dnc$Me
+# MY is the residual from regressing Y on Z
+MY <- dnc$MY
+
+# 1. Numerator
+LMnum <- GetLM_nocov(df = dnc, X = X, e = e, groupZ = group)
+
+# 2. L3O Variance
+LMVar <- L3Ovar_gloop_nocov(df = dnc, group = group, X = X, e = e, MX = MX, Me = Me)
+
+# 3. t-statistic for LM test (compare with std normal)
+LMt <- LMnum / sqrt(LMVar)
+
+# 4. Confidence Intervals
+# Get coefficients first, then values
+CI_coefs <- GetCIcoef_nocov(df = dnc, groupZ = group, X = X, Y = Y, MX = MX, MY = MY)
+CI <- GetCIvals(CI_coefs)
+
+# Display Results
+print(paste("LM Statistic:", LMt))
+print("Confidence Interval:")
+print(CI)
+```
+
+```{r}
+# Load variables from 'dc'
+X <- dc$X
+Y <- dc$Y
+e <- dc$e
+group <- dc$group
+# groupW are covariate groups (i.e. state indicators)
+groupW <- dc$groupW
+MX <- dc$MX
+Me <- dc$Me
+MY <- dc$MY
+
+# 1. Numerator
+# group indexes every QOB and groupW combination
+LMnum <- GetLM(df = dc, X = X, e = e, groupW = groupW, group = group)
+
+# 2. L3O Variance
+LMVar <- L3Ovar_gloop_cov(df = dc, group = group, groupW = groupW, X = X, e = e, MX = MX, Me = Me)
+
+# 3. t-statistic for LM test
+LMt <- LMnum / sqrt(LMVar)
+
+# 4. Confidence Intervals (Fast method)
+CI_coefs <- GetL3OCIcoef_fast(df = dc, groupW = groupW, group = group, X = X, Y = Y, MX = MX, MY = MY)
+CI <- GetCIvals(CI_coefs)
+
+# Display Results
+print(paste("LM Statistic:", LMt))
+print("Confidence Interval:")
+print(CI)
+```
+
+```{r}
+# Construct G and P using the package function
+# Note: In the package, we call this function directly rather than defining it inline.
+GP <- GetGP(group = dc$group, groupW = dc$groupW, n = nrow(dc))
+
+# 1. Numerator (Matrix Algebra)
+# Note: as.numeric ensures it returns a scalar, not a 1x1 matrix
+LMnum <- as.numeric(t(dc$e) %*% GP$G %*% dc$X)
+
+# 2. L3O Variance (Inner Loop)
+LMVar <- L3Ovar_iloop_cov(X = dc$X, e = dc$e, P = GP$P, G = GP$G)
+
+# 3. t-statistic
+LMt <- LMnum / sqrt(LMVar)
+
+# 4. Confidence Intervals
+# Note: We pass the matrices P, G, Z, W explicitly
+CI_coefs <- GetCIcoef_iloop(
+  df = dc, 
+  P = GP$P, 
+  G = GP$G, 
+  X = X, 
+  Y = Y, 
+  MX = MX, 
+  MY = MY, 
+  Z = GP$Z, 
+  W = GP$W, 
+  noisy = FALSE
+)
+CI <- GetCIvals(CI_coefs)
+
+# Display Results
+print(paste("LM Statistic:", LMt))
+print("Confidence Interval:")
+print(CI)
+```
