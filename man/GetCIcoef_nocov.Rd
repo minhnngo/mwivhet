@@ -33,10 +33,9 @@ This function inverts the UJIVE/LIML score test using optimized variance estimat
 block-diagonal designs.
 }
 \details{
-This function performs the same logic as \code{\link{GetCIcoef}} but uses the specialized
-\code{_nocov} helper functions (\code{\link{A1type_sum_nocov}}, \code{\link{A4type_sum_nocov}})
-to compute variance components. This is appropriate for designs where instruments form
-mutually exclusive groups and no global covariates link them.
+This function performs the same logic as \code{\link{GetCIcoef}} but is specifically
+appropriate for designs where instruments form mutually exclusive groups
+and no global covariates link them.
 
 The returned coefficients define the confidence set:
 \deqn{\{ \beta : (P_{XX}^2 - q C_2)\beta^2 + (-2 P_{XY} P_{XX} - q C_1)\beta + (P_{XY}^2 - q C_0) \leq 0 \}}

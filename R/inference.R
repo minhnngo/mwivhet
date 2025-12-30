@@ -14,7 +14,7 @@
 #' @param MX Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).
 #' @param MY Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).
 #' @param q Numeric. The critical value for the test statistic inversion (e.g., \eqn{\chi^2_{1, 1-\alpha}}).
-#'   Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95\% confidence interval.
+#'   Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95 percent confidence interval.
 #' @param noisy A logical indicating whether to print progress dots during the loop.
 #'   Defaults to \code{FALSE}.
 #'
@@ -22,15 +22,7 @@
 #' The confidence set is constructed by inverting a test statistic (e.g., Anderson-Rubin or UJIVE-Wald)
 #' based on the quadratic form \eqn{Q(\beta) = (\mathbf{Y} - \beta \mathbf{X})' G (\mathbf{Y} - \beta \mathbf{X})}.
 #' The coefficients are derived from the variance estimator \eqn{\hat{V}(\beta)} of this quadratic form,
-#' decomposed into three terms:
-#' \itemize{
-#'   \item \code{C0}: Variance component associated with the outcome \eqn{Y} (intercept term).
-#'   \item \code{C1}: Covariance component associated with the interaction between \eqn{Y} and \eqn{X} (linear term).
-#'   \item \code{C2}: Variance component associated with the regressor \eqn{X} (quadratic term).
-#' }
-#'
-#' These components are estimated using linear combinations of the \eqn{A_k} terms (calculated via
-#' \code{\link{A1type_sum}} and \code{\link{A4type_sum}}), ensuring unbiasedness under many weak instruments.
+#' decomposed into three terms.
 #'
 #' The final coefficients returned are:
 #' \deqn{a = P_{XX}^2 - q \cdot C_2}
@@ -43,8 +35,6 @@
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
-#'
-#' @seealso \code{\link{A1type_sum}}, \code{\link{A4type_sum}}, \code{\link{GetLM}}
 #'
 #' @export
 GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy = FALSE) {
@@ -75,7 +65,6 @@ GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy 
     A4type_sum(df, group, groupW, ipos = X, jpos = X, kpos = X, lpos = MX, noisy = noisy)
   PXY <- GetLM(df, X, Y, groupW, group)
   PXX <- GetLM(df, X, X, groupW, group)
-
 
   acon <- PXX^2 - q * C2
   bcon <- -2 * PXY * PXX - q * C1
@@ -113,9 +102,6 @@ GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy 
 #'   \item \code{sig23}: \eqn{Cov(X'GY, X'GX)}
 #'   \item \code{sig13}: \eqn{Cov(Y'GY, X'GX)}
 #' }
-#'
-#' The calculations rely on the symmetry of the weighting matrix \eqn{G} (valid for the
-#' grouped designs supported by \code{\link{A1type_sum}}) to simplify the fourth-moment expansions.
 #'
 #' @return A numeric vector of length 6: \code{c(sig11, sig22, sig33, sig12, sig23, sig13)}.
 #'
@@ -170,10 +156,9 @@ GetSigMx <- function(df, groupW, group, X, Y, MX, MY, noisy = FALSE) {
 #' @param noisy Logical. If \code{TRUE}, prints progress during variance component calculation.
 #'
 #' @details
-#' This function performs the same logic as \code{\link{GetCIcoef}} but uses the specialized
-#' \code{_nocov} helper functions (\code{\link{A1type_sum_nocov}}, \code{\link{A4type_sum_nocov}})
-#' to compute variance components. This is appropriate for designs where instruments form
-#' mutually exclusive groups and no global covariates link them.
+#' This function performs the same logic as \code{\link{GetCIcoef}} but is specifically
+#' appropriate for designs where instruments form mutually exclusive groups
+#' and no global covariates link them.
 #'
 #' The returned coefficients define the confidence set:
 #' \deqn{\{ \beta : (P_{XX}^2 - q C_2)\beta^2 + (-2 P_{XY} P_{XX} - q C_1)\beta + (P_{XY}^2 - q C_0) \leq 0 \}}
@@ -1148,20 +1133,20 @@ GetCIvals <- function(CIcoef) {
 #' this set can take one of four forms (Dufour, 1997):
 #'
 #' \describe{
-#'   \item{\strong{Type 1: Bounded Interval (Standard)}}
-#'   {\eqn{a \ge 0, \Delta \ge 0}. The parabola opens upward. The CI is the closed interval between the roots.}
+#'   \item{\strong{Type 1: Bounded Interval (Standard)}}{\eqn{a \ge 0, \Delta \ge 0}.
+#'   The parabola opens upward. The CI is the closed interval between the roots.}
 #'
-#'   \item{\strong{Type 2: Disjoint Union (Weak Identification)}}
-#'   {\eqn{a < 0, \Delta \ge 0}. The parabola opens downward. The CI is the union of two infinite rays:
+#'   \item{\strong{Type 2: Disjoint Union (Weak Identification)}}{\eqn{a < 0, \Delta \ge 0}.
+#'   The parabola opens downward. The CI is the union of two infinite rays:
 #'   \eqn{(-\infty, \text{Lower}] \cup [\text{Upper}, \infty)}. This is often referred to as a "donut" interval.}
 #'
-#'   \item{\strong{Type 3: Real Line (No Identification)}}
-#'   {\eqn{a < 0, \Delta < 0}. The parabola is always negative. The CI includes the entire real line.
+#'   \item{\strong{Type 3: Real Line (No Identification)}}{\eqn{a < 0, \Delta < 0}.
+#'   The parabola is always negative. The CI includes the entire real line.
 #'   Bounds are returned as \code{c(-100, 100)} placeholders.}
 #'
-#'   \item{\strong{Type 4: Empty Set (Misspecification)}}
-#'   {\eqn{a \ge 0, \Delta < 0}. The parabola is always positive. The confidence set is empty,
-#'   implying the model is rejected at the specified significance level for all \eqn{\beta}.}
+#'   \item{\strong{Type 4: Empty Set (Misspecification)}}{\eqn{a \ge 0, \Delta < 0}.
+#'   The parabola is always positive. The confidence set is empty, implying the model
+#'   is rejected at the specified significance level for all \eqn{\beta}.}
 #' }
 #'
 #' @return A numeric vector of length 3: \code{c(CItype, LowerBound, UpperBound)}.

@@ -44,9 +44,6 @@ The elements of the returned vector correspond to the upper triangle of \eqn{\Si
 \item \code{sig23}: \eqn{Cov(X'GY, X'GX)}
 \item \code{sig13}: \eqn{Cov(Y'GY, X'GX)}
 }
-
-The calculations rely on the symmetry of the weighting matrix \eqn{G} (valid for the
-grouped designs supported by \code{\link{A1type_sum}}) to simplify the fourth-moment expansions.
 }
 \references{
 Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.

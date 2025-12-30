@@ -24,19 +24,19 @@ Depending on the sign of \eqn{a} and the discriminant \eqn{\Delta = b^2 - 4ac},
 this set can take one of four forms (Dufour, 1997):
 
 \describe{
-\item{\strong{Type 1: Bounded Interval (Standard)}}
-{\eqn{a \ge 0, \Delta \ge 0}. The parabola opens upward. The CI is the closed interval between the roots.}
+\item{\strong{Type 1: Bounded Interval (Standard)}}{\eqn{a \ge 0, \Delta \ge 0}.
+The parabola opens upward. The CI is the closed interval between the roots.}
 
-\item{\strong{Type 2: Disjoint Union (Weak Identification)}}
-{\eqn{a < 0, \Delta \ge 0}. The parabola opens downward. The CI is the union of two infinite rays:
+\item{\strong{Type 2: Disjoint Union (Weak Identification)}}{\eqn{a < 0, \Delta \ge 0}.
+The parabola opens downward. The CI is the union of two infinite rays:
 \eqn{(-\infty, \text{Lower}] \cup [\text{Upper}, \infty)}. This is often referred to as a "donut" interval.}
 
-\item{\strong{Type 3: Real Line (No Identification)}}
-{\eqn{a < 0, \Delta < 0}. The parabola is always negative. The CI includes the entire real line.
+\item{\strong{Type 3: Real Line (No Identification)}}{\eqn{a < 0, \Delta < 0}.
+The parabola is always negative. The CI includes the entire real line.
 Bounds are returned as \code{c(-100, 100)} placeholders.}
 
-\item{\strong{Type 4: Empty Set (Misspecification)}}
-{\eqn{a \ge 0, \Delta < 0}. The parabola is always positive. The confidence set is empty,
-implying the model is rejected at the specified significance level for all \eqn{\beta}.}
+\item{\strong{Type 4: Empty Set (Misspecification)}}{\eqn{a \ge 0, \Delta < 0}.
+The parabola is always positive. The confidence set is empty, implying the model
+is rejected at the specified significance level for all \eqn{\beta}.}
 }
 }

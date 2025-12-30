@@ -22,7 +22,7 @@ GetCIcoef(df, groupW, group, X, Y, MX, MY, q = qnorm(0.975)^2, noisy = FALSE)
 \item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
 
 \item{q}{Numeric. The critical value for the test statistic inversion (e.g., \eqn{\chi^2_{1, 1-\alpha}}).
-Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95\\% confidence interval.}
+Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95 percent confidence interval.}
 
 \item{noisy}{A logical indicating whether to print progress dots during the loop.
 Defaults to \code{FALSE}.}
@@ -40,15 +40,7 @@ and accounts for heteroskedasticity and many weak instruments.
 The confidence set is constructed by inverting a test statistic (e.g., Anderson-Rubin or UJIVE-Wald)
 based on the quadratic form \eqn{Q(\beta) = (\mathbf{Y} - \beta \mathbf{X})' G (\mathbf{Y} - \beta \mathbf{X})}.
 The coefficients are derived from the variance estimator \eqn{\hat{V}(\beta)} of this quadratic form,
-decomposed into three terms:
-\itemize{
-\item \code{C0}: Variance component associated with the outcome \eqn{Y} (intercept term).
-\item \code{C1}: Covariance component associated with the interaction between \eqn{Y} and \eqn{X} (linear term).
-\item \code{C2}: Variance component associated with the regressor \eqn{X} (quadratic term).
-}
-
-These components are estimated using linear combinations of the \eqn{A_k} terms (calculated via
-\code{\link{A1type_sum}} and \code{\link{A4type_sum}}), ensuring unbiasedness under many weak instruments.
+decomposed into three terms.
 
 The final coefficients returned are:
 \deqn{a = P_{XX}^2 - q \cdot C_2}
@@ -59,7 +51,4 @@ Where \eqn{P_{XY}} and \eqn{P_{XX}} are the UJIVE/Jackknife estimators for the n
 }
 \references{
 Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
-}
-\seealso{
-\code{\link{A1type_sum}}, \code{\link{A4type_sum}}, \code{\link{GetLM}}
 }

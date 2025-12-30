@@ -1,7 +1,7 @@
 #' Leave-Three-Out Variance Estimator for LM Statistic
 #'
 #' @description
-#' Calculates the consistent variance estimator ($\hat{V}_{LM}$) for the Lagrange Multiplier (LM)
+#' Calculates the consistent variance estimator (\eqn{\hat{V}_{LM}}) for the Lagrange Multiplier (LM)
 #' test statistic. This estimator is robust to both many weak instruments and heterogeneous treatment effects.
 #'
 #' The function implements the "Leave-Three-Out" (L3O) approach proposed in Yap (2025),
@@ -10,22 +10,22 @@
 #'
 #' @param X A numeric vector of length n containing the endogenous variable.
 #' @param e A numeric vector of length n containing the residuals under the null hypothesis
-#'   ($e = Y - X\beta_0$).
+#'   (\eqn{e = Y - X\beta_0}).
 #' @param P A numeric n x n projection matrix of the instruments (and potentially covariates).
-#'   Corresponds to matrix $P$ or $H_Q$ in the paper.
+#'   Corresponds to matrix \eqn{P} or \eqn{H_Q} in the paper.
 #' @param G A numeric n x n weighting matrix used in the JIVE/UJIVE estimator.
 #'   For standard JIVE, G is equal to P. For UJIVE with covariates, G is the adjusted
 #'   matrix defined in Section 3.1.
 #' @param noisy A logical indicating whether to print progress dots during the loop.
-#'   Defaults to FALSE.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' The function computes the variance estimator defined in Equation (9) of the paper:
 #' \deqn{\hat{V}_{LM} = A_1 + A_2 + A_3 + A_4 + A_5}
 #'
-#' It iterates through each observation $i$ to compute the necessary adjustments
-#' (Leave-Three-Out determinants $D_{ijk}$) and aggregates the components using
-#' optimized matrix operations to handle the double sums over $j$ and $k$.
+#' It iterates through each observation \eqn{i} to compute the necessary adjustments
+#' (Leave-Three-Out determinants \eqn{D_{ijk}}) and aggregates the components using
+#' optimized matrix operations to handle the double sums over \eqn{j} and \eqn{k}.
 #'
 #' Specifically:
 #' \itemize{
@@ -35,10 +35,10 @@
 #'   the reduced-form coefficients (which cannot be treated as fixed in the many-instrument setting).
 #' }
 #'
-#' The calculation relies on determinants $D_{ij}$ and $D_{ijk}$ derived from the annihilator
-#' matrix $M = I - P$ to ensure the estimator is unbiased.
+#' The calculation relies on determinants \eqn{D_{ij}} and \eqn{D_{ijk}} derived from the annihilator
+#' matrix \eqn{M = I - P} to ensure the estimator is unbiased.
 #'
-#' @returns A scalar numeric value representing the estimated variance $\hat{V}_{LM}$.
+#' @return A scalar numeric value representing the estimated variance \eqn{\hat{V}_{LM}}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
