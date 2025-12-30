@@ -245,7 +245,6 @@ A4type_sum <- function(df, group, groupW, ipos, jpos, kpos, lpos, noisy = FALSE)
   sum(ret)
 }
 
-
 #' Compute A1 Variance Component (No Covariates)
 #'
 #' @description

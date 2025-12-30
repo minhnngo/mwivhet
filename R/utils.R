@@ -114,16 +114,48 @@ Getgroupindex <- function(ds, group) {
   ds$groupidx
 }
 
-#' Title
+#' Construct UJIVE Weighting and Projection Matrices
 #'
-#' @param group
-#' @param groupW
-#' @param n
+#' @description
+#' Generates the weighting matrix \eqn{G} and projection matrix \eqn{P} required for the
+#' Unbiased Jackknife Instrumental Variables Estimator (UJIVE). It constructs these
+#' matrices based on group/cluster indicators for instruments (\eqn{Z}) and
+#' stratification covariates (\eqn{W}).
 #'
-#' @returns
+#' @param group Integer vector. Primary grouping variable used to define the instrument structure (e.g., judge or examiner IDs).
+#' @param groupW Integer vector. Grouping variable for stratification or covariates (e.g., time periods or court locations).
+#' @param n Integer. The total sample size (number of observations).
+#'
+#' @details
+#' The function constructs the design matrices for instruments (\eqn{Z}) and covariates (\eqn{W})
+#' based on the provided grouping vectors. It creates dummy variable matrices where
+#' \eqn{Z_{ij} = 1} if observation \eqn{i} belongs to group \eqn{j}.
+#'
+#' It calculates the standard projection matrices:
+#' \deqn{P_Z = Z(Z'Z)^{-1}Z'}
+#' \deqn{P_W = W(W'W)^{-1}W'}
+#' \deqn{P = P_{[Z,W]} \quad (\text{Projection onto both } Z \text{ and } W)}
+#'
+#' The UJIVE weighting matrix \eqn{G} is then computed as the difference between the
+#' "leave-one-out" adjusted projection of the full set and the covariates:
+#' \deqn{G = D_P^{-1}(P - \text{diag}(P)) - D_W^{-1}(P_W - \text{diag}(P_W))}
+#' where \eqn{D_P} and \eqn{D_W} are diagonal matrices containing the annihilator diagonals
+#' (\eqn{1 - P_{ii}}) for the respective projections.
+#'
+#' Note: This function assumes that the resulting design matrices are full rank.
+#'
+#' @return A list containing four matrices:
+#' \itemize{
+#'   \item \code{G}: The \eqn{N \times N} UJIVE weighting matrix.
+#'   \item \code{P}: The \eqn{N \times N} full projection matrix on \eqn{[Z, W]}.
+#'   \item \code{Z}: The \eqn{N \times K} matrix of instrument indicators.
+#'   \item \code{W}: The \eqn{N \times L} matrix of covariate indicators.
+#' }
+#'
+#' @references
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#'
 #' @export
-#'
-#' @examples
 GetGP <- function(group, groupW, n) {
   groupZ <- groupW * (group %% 2)
   # Create Z matrix of indicators

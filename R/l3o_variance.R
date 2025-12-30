@@ -44,8 +44,6 @@
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
 #'
 #' @export
-#'
-#' @examples
 L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
   n <- length(X)
   M <- diag(n) - P
@@ -148,12 +146,10 @@ L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
   sum(A1vec * e + 2 * A2vec * e + A3vec * X - A4vec * X - A5vec * e)
 }
 
-
-
 #' Leave-Three-Out Variance Estimator (Nested Loop Implementation)
 #'
 #' @description
-#' Calculates the consistent variance estimator ($\hat{V}_{LM}$) for the Lagrange Multiplier (LM)
+#' Calculates the consistent variance estimator (\eqn{\hat{V}_{LM}}) for the Lagrange Multiplier (LM)
 #' test statistic using an explicit nested loop structure.
 #'
 #' This function performs the same statistical estimation as \code{L3Ovar_iloop_cov} but constructs
@@ -162,17 +158,17 @@ L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
 #' slower but useful for verifying results or when the full G matrix is too large to store in memory.
 #'
 #' @param X A numeric vector of length n containing the endogenous variable.
-#' @param e A numeric vector of length n containing the residuals ($e = Y - X\beta_0$).
+#' @param e A numeric vector of length n containing the residuals (\eqn{e = Y - X\beta_0}).
 #' @param MX A numeric vector representing the product of the annihilator matrix M and X
-#'   ($M \%*\% X$). Passed as an argument to avoid re-computation.
+#'   (\eqn{M \%*\% X}). Passed as an argument to avoid re-computation.
 #' @param Me A numeric vector representing the product of the annihilator matrix M and e
-#'   ($M \%*\% e$). Passed as an argument to avoid re-computation.
+#'   (\eqn{M \%*\% e}). Passed as an argument to avoid re-computation.
 #' @param W A numeric matrix of covariates (controls).
 #' @param Q A numeric matrix of instruments (including covariates).
-#' @param WWWinv A numeric matrix representing the inverse of the gram matrix of W ($(W'W)^{-1}$).
-#' @param QQQinv A numeric matrix representing the inverse of the gram matrix of Q ($(Q'Q)^{-1}$).
-#' @param IdPQ A numeric vector containing the diagonal elements of the projection matrix $P_Q$.
-#' @param IdPW A numeric vector containing the diagonal elements of the projection matrix $P_W$.
+#' @param WWWinv A numeric matrix representing the inverse of the gram matrix of W (\eqn{(W'W)^{-1}}).
+#' @param QQQinv A numeric matrix representing the inverse of the gram matrix of Q (\eqn{(Q'Q)^{-1}}).
+#' @param IdPQ A numeric vector containing the diagonal elements of the projection matrix \eqn{P_Q}.
+#' @param IdPW A numeric vector containing the diagonal elements of the projection matrix \eqn{P_W}.
 #' @param noisyi A logical indicating whether to print progress for the outer loop (i). Defaults to TRUE.
 #' @param noisyj A logical indicating whether to print progress for the inner loop (j). Defaults to FALSE.
 #'
@@ -186,19 +182,17 @@ L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
 #'
 #' The triple summation required for the variance components is handled by:
 #' \enumerate{
-#'   \item Outer loop over $i$.
-#'   \item Inner loop over $j$.
-#'   \item Vectorized operations over the vectors to handle index $k$.
+#'   \item Outer loop over \eqn{i}.
+#'   \item Inner loop over \eqn{j}.
+#'   \item Vectorized operations over the vectors to handle index \eqn{k}.
 #' }
 #'
-#' @returns A scalar numeric value representing the estimated variance $\hat{V}_{LM}$.
+#' @returns A scalar numeric value representing the estimated variance \eqn{\hat{V}_{LM}}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
 #'
 #' @export
-#'
-#' @examples
 L3Ovar_ijloop_cov <- function(X, e, MX, Me, W, Q, WWWinv, QQQinv, IdPQ, IdPW, noisyi = TRUE, noisyj = FALSE) {
   n <- length(X)
   onesN <- matrix(rep(1, n), ncol = 1)
@@ -787,8 +781,6 @@ L3Ovar_block <- function(X, e, P, c) {
 #' @return A numeric scalar representing the estimated variance.
 #'
 #' @export
-#'
-#' @examples
 L3Ovar_iloop_nocov <- function(X, e, P) {
   n <- length(X)
   M <- diag(n) - P

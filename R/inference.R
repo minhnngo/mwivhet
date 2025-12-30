@@ -15,7 +15,8 @@
 #' @param MY Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).
 #' @param q Numeric. The critical value for the test statistic inversion (e.g., \eqn{\chi^2_{1, 1-\alpha}}).
 #'   Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95\% confidence interval.
-#' @param noisy Logical. If \code{TRUE}, prints progress during variance component calculation.
+#' @param noisy A logical indicating whether to print progress dots during the loop.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' The confidence set is constructed by inverting a test statistic (e.g., Anderson-Rubin or UJIVE-Wald)
@@ -578,7 +579,6 @@ GetCIcoef_iloop_nocov <- function(X, Y, P, q = qnorm(0.975)^2, noisy = FALSE) {
 
   c(acon, bcon, ccon)
 }
-
 
 #' Compute Quadratic Coefficients for CI (Memory-Efficient General)
 #'
