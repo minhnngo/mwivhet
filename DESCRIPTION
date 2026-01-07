@@ -1,9 +1,22 @@
 Package: mwivhet
-Title: What the Package Does (One Line, Title Case)
+Title: Inference with Many Weak Instruments and Heterogeneity
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person(given = "Ngoc Minh", family = "Ngo",
+           email = "minh.ngongoc2@gmail.com",
+           role = c("aut", "cre"),
+           comment = "Package implementation and documentation"),
+    person(given = "Luther", family = "Yap",
+           email = "lyap@nus.edu.sg",
+           role = "aut",
+           comment = "Original method and code implementation"))
+Description: Calculate test statistics and confidence intervals in a linear
+    instrumental variables model with possibly many weak instruments and
+    heterogeneous treatment effects, using methods developed in
+    Yap (2025) <https://arxiv.org/abs/2408.11193>. Implements a novel score
+    statistic and a leave-three-out variance estimator that is asymptotically
+    uniformly most powerful unbiased. Also computes Lagrange Multiplier tests for
+    robust inference in the presence of high-dimensional covariates.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -11,7 +24,6 @@ RoxygenNote: 7.3.3
 URL: https://github.com/minhnngo/mwivhet
 BugReports: https://github.com/minhnngo/mwivhet/issues
 Imports: 
-    Matrix,
     mvtnorm,
     stats
 Suggests: 
