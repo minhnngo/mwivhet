@@ -2,7 +2,7 @@
 title: "Demo for the mwivhet package"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to L3O Methods}
+  %\VignetteIndexEntry{Demo for the mwivhet package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -36,7 +36,8 @@ CI_coefs <- GetCIcoef_nocov(df = dnc, groupZ = group, X = X, Y = Y, MX = MX, MY 
 CI <- GetCIvals(CI_coefs)
 
 print(paste("LM Statistic:", LMt))
-print(paste("Confidence Interval:", CI))
+print("Confidence Interval:")
+print(CI)
 ```
 
 ```{r}
@@ -59,7 +60,8 @@ CI_coefs <- GetL3OCIcoef_fast(df = dc, groupW = groupW, group = group, X = X,
 CI <- GetCIvals(CI_coefs)
 
 print(paste("LM Statistic:", LMt))
-print(paste("Confidence Interval:", CI))
+print("Confidence Interval:")
+print(CI)
 ```
 
 ```{r}
@@ -84,5 +86,6 @@ CI_coefs <- GetCIcoef_iloop(df = dc, P = GP$P, G = GP$G, X = X, Y = Y, MX = MX,
 CI <- GetCIvals(CI_coefs)
 
 print(paste("LM Statistic:", LMt))
-print(paste("Confidence Interval:", CI))
+print("Confidence Interval:")
+print(CI)
 ```
