@@ -1,40 +1,40 @@
-#' Compute Quadratic Coefficients for Test Inversion Confidence Intervals (Clustered Data)
+#' Compute Quadratic Coefficients for Confidence Sets (Grouped Data)
 #'
 #' @description
 #' Estimates the coefficients \eqn{a}, \eqn{b}, and \eqn{c} for the quadratic inequality
 #' \eqn{a\beta^2 + b\beta + c \le 0}, which defines the \eqn{1-\alpha} confidence set for the
-#' structural parameter \eqn{\beta}. This function is designed for grouped/clustered data structures
-#' and accounts for heteroskedasticity and many weak instruments.
+#' structural parameter \eqn{\beta}. Designed for grouped instrument structures with covariates.
 #'
 #' @param df Data frame. Contains the observable variables and their projections.
-#' @param groupW Name of the covariate stratification variable (unquoted).
-#' @param group Name of the instrument grouping variable (unquoted).
-#' @param X Name of the endogenous regressor column (unquoted).
-#' @param Y Name of the outcome variable column (unquoted).
-#' @param MX Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).
-#' @param MY Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).
-#' @param q Numeric. The critical value for the test statistic inversion (e.g., \eqn{\chi^2_{1, 1-\alpha}}).
+#' @param groupW Column name (unquoted). The covariate stratification variable.
+#' @param group Column name (unquoted). The instrument grouping variable.
+#' @param X Column name (unquoted). The endogenous regressor.
+#' @param Y Column name (unquoted). The outcome variable.
+#' @param MX Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).
+#' @param MY Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).
+#' @param q Numeric scalar. Critical value for the test statistic inversion (e.g., \eqn{\chi^2_{1, 1-\alpha}}).
 #'   Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95 percent confidence interval.
-#' @param noisy A logical indicating whether to print progress dots during the loop.
+#' @param noisy Logical. If \code{TRUE}, prints progress dots during calculation.
 #'   Defaults to \code{FALSE}.
 #'
 #' @details
-#' The confidence set is constructed by inverting a test statistic (e.g., Anderson-Rubin or UJIVE-Wald)
-#' based on the quadratic form \eqn{Q(\beta) = (\mathbf{Y} - \beta \mathbf{X})' G (\mathbf{Y} - \beta \mathbf{X})}.
+#' The confidence set is constructed by inverting a test statistic based on the quadratic form
+#' \eqn{Q(\beta) = (\mathbf{Y} - \beta \mathbf{X})' G (\mathbf{Y} - \beta \mathbf{X})}.
 #' The coefficients are derived from the variance estimator \eqn{\hat{V}(\beta)} of this quadratic form,
-#' decomposed into three terms.
+#' decomposed into interactions between the outcome and the regressor.
 #'
-#' The final coefficients returned are:
+#' The returned coefficients correspond to:
 #' \deqn{a = P_{XX}^2 - q \cdot C_2}
 #' \deqn{b = -2 P_{XY} P_{XX} - q \cdot C_1}
 #' \deqn{c = P_{XY}^2 - q \cdot C_0}
 #'
-#' Where \eqn{P_{XY}} and \eqn{P_{XX}} are the UJIVE/Jackknife estimators for the numerator of the test statistic.
+#' Where \eqn{P_{XY}} and \eqn{P_{XX}} are the UJIVE estimators for the cross-products, and
+#' \eqn{C_0, C_1, C_2} are the corresponding variance components computed via L3O adjustment.
 #'
-#' @return A numeric vector of length 3: \code{c(acon, bcon, ccon)}.
+#' @return Numeric vector of length 3: \code{c(a, b, c)}.
 #'
 #' @references
-#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
 #'
 #' @export
 GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy = FALSE) {
@@ -77,23 +77,23 @@ GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy 
 #'
 #' @description
 #' Estimates the joint variance-covariance matrix of the three core quadratic forms used in
-#' UJIVE/LIML estimation: \eqn{Y'GY}, \eqn{X'GY}, and \eqn{X'GX}. This matrix is required
-#' for specification testing (e.g., J-test) and advanced inference on structural parameters.
+#' UJIVE/LIML estimation: \eqn{Y'GY}, \eqn{X'GY}, and \eqn{X'GX}.
 #'
-#' @param df Data frame. Contains the observable variables and their projections.
-#' @param groupW Name of the covariate stratification variable (unquoted).
-#' @param group Name of the instrument grouping variable (unquoted).
-#' @param X Name of the endogenous regressor column (unquoted).
-#' @param Y Name of the outcome variable column (unquoted).
-#' @param MX Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).
-#' @param MY Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).
+#' @param df Data frame. Contains the variables used in estimation.
+#' @param groupW Column name (unquoted). The covariate stratification variable.
+#' @param group Column name (unquoted). The instrument grouping variable.
+#' @param X Column name (unquoted). The endogenous regressor.
+#' @param Y Column name (unquoted). The outcome variable.
+#' @param MX Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).
+#' @param MY Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).
 #' @param noisy Logical. If \code{TRUE}, prints progress during variance component calculation.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
-#' The function estimates the covariance matrix \eqn{\Sigma_\Psi} for the vector:
+#' The function estimates the covariance components for the vector of quadratic forms:
 #' \deqn{\Psi = [Y'GY, \quad X'GY, \quad X'GX]^T}
 #'
-#' The elements of the returned vector correspond to the upper triangle of \eqn{\Sigma_\Psi}:
+#' The returned vector contains the unique elements of the covariance matrix \eqn{\Sigma_\Psi}:
 #' \itemize{
 #'   \item \code{sig11}: \eqn{Var(Y'GY)}
 #'   \item \code{sig22}: \eqn{Var(X'GY)}
@@ -103,7 +103,7 @@ GetCIcoef <- function(df, groupW, group, X, Y, MX, MY, q = qnorm(.975)^2, noisy 
 #'   \item \code{sig13}: \eqn{Cov(Y'GY, X'GX)}
 #' }
 #'
-#' @return A numeric vector of length 6: \code{c(sig11, sig22, sig33, sig12, sig23, sig13)}.
+#' @return Numeric vector of length 6. Contains \code{c(sig11, sig22, sig33, sig12, sig23, sig13)}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -142,18 +142,20 @@ GetSigMx <- function(df, groupW, group, X, Y, MX, MY, noisy = FALSE) {
 #'
 #' @description
 #' Calculates the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
-#' used to construct confidence intervals for \eqn{\beta} in the "Many Means" setting (no covariates).
+#' used to construct confidence intervals for \eqn{\beta} in the grouped design setting (no covariates).
 #' This function inverts the UJIVE/LIML score test using optimized variance estimators for
 #' block-diagonal designs.
 #'
 #' @param df Data frame. Contains the observable variables \eqn{X, Y} and their projections.
-#' @param groupZ Name of the instrument grouping variable (unquoted).
-#' @param X Name of the endogenous regressor column (unquoted).
-#' @param Y Name of the outcome variable column (unquoted).
-#' @param MX Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).
-#' @param MY Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).
-#' @param q Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).
-#' @param noisy Logical. If \code{TRUE}, prints progress during variance component calculation.
+#' @param groupZ Column name (unquoted). The instrument grouping variable.
+#' @param X Column name (unquoted). The endogenous regressor.
+#' @param Y Column name (unquoted). The outcome variable.
+#' @param MX Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).
+#' @param MY Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).
+#' @param q Numeric scalar. Critical value for the test inversion (e.g., \eqn{1.96^2}).
+#'   Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95 percent confidence interval.
+#' @param noisy Logical. If \code{TRUE}, prints progress dots during calculation.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' This function performs the same logic as \code{\link{GetCIcoef}} but is specifically
@@ -163,7 +165,8 @@ GetSigMx <- function(df, groupW, group, X, Y, MX, MY, noisy = FALSE) {
 #' The returned coefficients define the confidence set:
 #' \deqn{\{ \beta : (P_{XX}^2 - q C_2)\beta^2 + (-2 P_{XY} P_{XX} - q C_1)\beta + (P_{XY}^2 - q C_0) \leq 0 \}}
 #'
-#' @return A numeric vector of length 3 containing \code{c(a, b, c)}.
+#'
+#' @return Numeric vector of length 3 containing \code{c(a, b, c)}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -210,22 +213,24 @@ GetCIcoef_nocov <- function(df, groupZ, X, Y, MX, MY, q = qnorm(.975)^2, noisy =
 #' Compute Quadratic Coefficients for CI (General Design)
 #'
 #' @description
-#' Calculates the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
+#' Computes the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
 #' used to construct confidence intervals for \eqn{\beta} in general instrumental variable designs.
 #' This function supports asymmetric weighting matrices (e.g., UJIVE with continuous covariates)
 #' by using the fully generalized \code{_iloop} variance estimators.
 #'
 #' @param df Data frame. Contains the observable variables \eqn{X, Y} and their projections.
-#' @param P Matrix. The full projection matrix \eqn{P}.
-#' @param G Matrix. The UJIVE weighting matrix \eqn{G}.
-#' @param X Name of the endogenous regressor column (unquoted).
-#' @param Y Name of the outcome variable column (unquoted).
-#' @param MX Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).
-#' @param MY Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).
-#' @param Z Matrix. The instrument matrix.
-#' @param W Matrix. The covariate matrix.
-#' @param q Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).
-#' @param noisy Logical. If \code{TRUE}, prints progress during variance component calculation.
+#' @param P Matrix of dimension n x n. The full projection matrix \eqn{P}.
+#' @param G Matrix of dimension n x n. The UJIVE weighting matrix \eqn{G}.
+#' @param X Column name (unquoted). The endogenous regressor.
+#' @param Y Column name (unquoted). The outcome variable.
+#' @param MX Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).
+#' @param MY Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).
+#' @param Z Matrix of instruments.
+#' @param W Matrix of covariates.
+#' @param q Numeric scalar. Critical value for the test inversion (typically \eqn{1.96^2}).
+#'   Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95 percent confidence interval.
+#' @param noisy Logical. If \code{TRUE}, prints progress dots during calculation.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' This is the most general version of the confidence interval coefficient calculator.
@@ -233,10 +238,13 @@ GetCIcoef_nocov <- function(df, groupZ, X, Y, MX, MY, q = qnorm(.975)^2, noisy =
 #' all five distinct variance components (\eqn{A_1} through \eqn{A_5}) for each term in the
 #' polynomial expansion of \eqn{\hat{V}(\beta)}.
 #'
+#' The returned coefficients define the curvature and position of the confidence set parabola:
+#'
+#'
 #' The function explicitly constructs the diagonal adjustments for the UJIVE signal calculation
 #' using the matrices \eqn{Z} and \eqn{W}.
 #'
-#' @return A numeric vector of length 3 containing \code{c(a, b, c)}.
+#' @return Numeric vector of length 3 containing \code{c(a, b, c)}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -303,14 +311,16 @@ GetCIcoef_iloop <- function(df, P, G, X, Y, MX, MY, Z, W, q = qnorm(.975)^2, noi
 #' This function performs a highly optimized single-pass loop to compute all polynomial coefficients
 #' of the variance estimator \eqn{\hat{V}(\beta)} simultaneously.
 #'
-#' @param X Numeric vector. The endogenous regressor.
-#' @param Y Numeric vector. The outcome variable.
-#' @param P Matrix. The \eqn{N \times N} symmetric projection matrix.
-#' @param q Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).
+#' @param X Numeric vector of length n. The endogenous regressor.
+#' @param Y Numeric vector of length n. The outcome variable.
+#' @param P Matrix of dimension n x n. The symmetric projection matrix.
+#' @param q Numeric scalar. The critical value for the test inversion (typically \eqn{1.96^2}).
+#'   Defaults to \code{qnorm(0.975)^2}.
 #' @param noisy Logical. If \code{TRUE}, prints progress through the N loops.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
-#' This function is the "heavy lifting" solver for generic symmetric designs (e.g., Ridge IV, Kernel IV).
+#' This function is the solver for generic symmetric designs.
 #' It inverts the test statistic:
 #' \deqn{\frac{(P_{XY} - \beta P_{XX})^2}{C_2 \beta^2 + C_1 \beta + C_0} \leq q}
 #'
@@ -320,7 +330,7 @@ GetCIcoef_iloop <- function(df, P, G, X, Y, MX, MY, Z, W, q = qnorm(.975)^2, noi
 #' It iterates through observations \eqn{i} once, accumulating the weighted contributions
 #' for \eqn{C_0}, \eqn{C_1}, and \eqn{C_2} in parallel.
 #'
-#' @return A numeric vector of length 3 containing \code{c(a, b, c)}.
+#' @return Numeric vector of length 3 containing \code{c(a, b, c)}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -565,7 +575,7 @@ GetCIcoef_iloop_nocov <- function(X, Y, P, q = qnorm(0.975)^2, noisy = FALSE) {
   c(acon, bcon, ccon)
 }
 
-#' Calculate Quadratic Roots for Confidence Intervals
+#' Compute Quadratic Roots for Confidence Sets
 #'
 #' @description
 #' Computes the roots of the quadratic equation \eqn{a\beta^2 + b\beta + c = 0}.
@@ -579,14 +589,15 @@ GetCIcoef_iloop_nocov <- function(X, Y, P, q = qnorm(0.975)^2, noisy = FALSE) {
 #' This function applies the standard quadratic formula:
 #' \deqn{\beta_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}
 #'
-#' \strong{Warning:} This function does not check the sign of the discriminant. It is intended
+#'
+#' \strong{Note:} This function does not check the sign of the discriminant. It is intended
 #' to be called by a wrapper function (like \code{\link{GetCItypebd}}) that first verifies
 #' the existence of real roots (i.e., \eqn{b^2 - 4ac \ge 0}).
 #'
 #' Depending on the sign of \eqn{a} (convexity), these values represent either the endpoints
 #' of a bounded confidence interval or the inner boundaries of a disjoint ("donut") confidence set.
 #'
-#' @return A numeric vector of length 2 containing the two roots.
+#' @return Numeric vector of length 2. Contains the two roots.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -615,26 +626,27 @@ GetCIvals <- function(CIcoef) {
 #' @details
 #' The confidence set is defined as \eqn{\{ \beta : a\beta^2 + b\beta + c \leq 0 \}}.
 #' Depending on the sign of \eqn{a} and the discriminant \eqn{\Delta = b^2 - 4ac},
-#' this set can take one of four forms (Dufour, 1997):
+#' this set can take one of four forms:
 #'
-#' \describe{
-#'   \item{\strong{Type 1: Bounded Interval (Standard)}}{\eqn{a \ge 0, \Delta \ge 0}.
-#'   The parabola opens upward. The CI is the closed interval between the roots.}
 #'
-#'   \item{\strong{Type 2: Disjoint Union (Weak Identification)}}{\eqn{a < 0, \Delta \ge 0}.
-#'   The parabola opens downward. The CI is the union of two infinite rays:
-#'   \eqn{(-\infty, \text{Lower}] \cup [\text{Upper}, \infty)}. This is often referred to as a "donut" interval.}
+#' \itemize{
+#'   \item \strong{Type 1: Bounded Interval} (\eqn{a \ge 0, \Delta \ge 0}).
+#'   The parabola opens upward with real roots. The CI is the closed interval \eqn{[\beta_{min}, \beta_{max}]}.
 #'
-#'   \item{\strong{Type 3: Real Line (No Identification)}}{\eqn{a < 0, \Delta < 0}.
+#'   \item \strong{Type 2: Disjoint Union (Donut)} (\eqn{a < 0, \Delta \ge 0}).
+#'   The parabola opens downward with real roots. The CI is the union of two infinite rays:
+#'   \eqn{(-\infty, \beta_{min}] \cup [\beta_{max}, \infty)}.
+#'
+#'   \item \strong{Type 3: Real Line} (\eqn{a < 0, \Delta < 0}).
 #'   The parabola is always negative. The CI includes the entire real line.
-#'   Bounds are returned as \code{c(-100, 100)} placeholders.}
+#'   Bounds are returned as placeholders \code{c(-100, 100)}.
 #'
-#'   \item{\strong{Type 4: Empty Set (Misspecification)}}{\eqn{a \ge 0, \Delta < 0}.
+#'   \item \strong{Type 4: Empty Set} (\eqn{a \ge 0, \Delta < 0}).
 #'   The parabola is always positive. The confidence set is empty, implying the model
-#'   is rejected at the specified significance level for all \eqn{\beta}.}
+#'   is rejected at the specified significance level for all \eqn{\beta}.
 #' }
 #'
-#' @return A numeric vector of length 3: \code{c(CItype, LowerBound, UpperBound)}.
+#' @return Numeric vector of length 3. Format: \code{c(CItype, LowerBound, UpperBound)}.
 #'
 #' @export
 GetCItypebd <- function(CIcoef) {
@@ -664,27 +676,29 @@ GetCItypebd <- function(CIcoef) {
 #' with respect to \code{groupW} but potentially asymmetric within blocks due to covariate adjustments.
 #'
 #' @param df Data frame. Contains the observable variables and grouping indicators.
-#' @param groupW Name of the covariate stratification variable (unquoted).
-#' @param groupQ Name of the instrument grouping variable (unquoted).
-#' @param X Name of the endogenous regressor column (unquoted).
-#' @param Y Name of the outcome variable column (unquoted).
-#' @param MX Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).
-#' @param MY Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).
-#' @param q Numeric. The critical value for test inversion (typically \eqn{1.96^2}).
+#' @param groupW Column name (unquoted). The covariate stratification variable.
+#' @param groupQ Column name (unquoted). The instrument grouping variable.
+#' @param X Column name (unquoted). The endogenous regressor.
+#' @param Y Column name (unquoted). The outcome variable.
+#' @param MX Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).
+#' @param MY Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).
+#' @param q Numeric scalar. The critical value for test inversion (typically \eqn{1.96^2}).
+#'   Defaults to \code{qnorm(.975)^2}.
 #' @param noisy Logical. If \code{TRUE}, prints progress.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
-#' This function performs a "Stratified Mega-Loop":
+#' This function performs a loop:
 #' \enumerate{
-#'   \item \strong{Stratification:} Splits data by \code{groupW}. Computes local projection matrices
+#'   \item Splits data by \code{groupW}. Computes local projection matrices
 #'   \eqn{P_Q} and \eqn{P_W} for each stratum.
-#'   \item \strong{Asymmetry:} Calculates the full UJIVE weighting matrix \eqn{G = U(P_Q) - U(P_W)} locally.
+#'   \item Calculates the full UJIVE weighting matrix \eqn{G = U(P_Q) - U(P_W)} locally.
 #'   Since \eqn{G} is asymmetric, it computes all 5 variance components.
-#'   \item \strong{Optimization:} Accumulates all polynomial coefficients for \eqn{\hat{V}(\beta)}
+#'   \item Accumulates all polynomial coefficients for \eqn{\hat{V}(\beta)}
 #'   simultaneously using extensive pre-calculation of vector products.
 #' }
 #'
-#' @return A numeric vector of length 3 containing \code{c(a, b, c)}.
+#' @return Numeric vector of length 3 containing \code{c(a, b, c)}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -1038,30 +1052,31 @@ GetL3OCIcoef_fast <- function(df, groupW, groupQ, X, Y, MX, MY, q = qnorm(.975)^
 #' @description
 #' Calculates the UJIVE "signal" or cross-product term \eqn{X' G Y} for a general design with
 #' covariates. The weighting matrix \eqn{G} is defined as \eqn{U(P_Q) - U(P_W)}, where \eqn{U(P)}
-#' is the projection matrix with diagonal elements removed and rows rescaled by \eqn{1/(1-P_{ii})}.
+#' represents the projection matrix with diagonal elements set to zero and rows rescaled by \eqn{1/(1-P_{ii})}.
 #'
 #' @param df Data frame. Contains the observable variables.
-#' @param IdPW Numeric vector. The diagonal elements \eqn{1 - P_{W,ii}} (inverse diagonals of covariate projection).
-#' @param IdPQ Numeric vector. The diagonal elements \eqn{1 - P_{Q,ii}} (inverse diagonals of full projection).
-#' @param dPW Numeric vector. The diagonal elements \eqn{P_{W,ii}}.
-#' @param dPQ Numeric vector. The diagonal elements \eqn{P_{Q,ii}}.
+#' @param IdPW Numeric vector. The annihilator diagonals \eqn{1 - P_{W,ii}}.
+#' @param IdPQ Numeric vector. The annihilator diagonals \eqn{1 - P_{Q,ii}}.
+#' @param dPW Numeric vector. The projection diagonals \eqn{P_{W,ii}}.
+#' @param dPQ Numeric vector. The projection diagonals \eqn{P_{Q,ii}}.
 #' @param W Matrix. The covariate matrix.
 #' @param Q Matrix. The combined instrument and covariate matrix \eqn{[Z, W]}.
-#' @param X Name of the first variable column (unquoted).
-#' @param Y Name of the second variable column (unquoted).
+#' @param X Column name (unquoted). The first variable (e.g., regressor).
+#' @param Y Column name (unquoted). The second variable (e.g., outcome).
 #'
 #' @details
 #' This function computes the scalar:
 #' \deqn{S = X' [ (I-D_{P_Q})^{-1}(P_Q - D_{P_Q}) - (I-D_{P_W})^{-1}(P_W - D_{P_W}) ] Y}
 #'
+#'
 #' It uses an efficient matrix algebra expansion that avoids constructing the \eqn{N \times N}
-#' projection matrices. The computation complexity is linear in \eqn{N} (given pre-computed
-#' basis matrices), making it suitable for large datasets.
+#' projection matrices explicitly. The computation complexity is linear in \eqn{N} (given pre-computed
+#' basis matrices), making it suitable for large datasets where \eqn{G} is dense.
 #'
-#' The result corresponds to \eqn{P_{XY}} (if \eqn{X \neq Y}) or \eqn{P_{XX}} (if \eqn{X = Y})
-#' used in the test inversion inequality.
+#' The result corresponds to the cross-term \eqn{P_{XY}} (if \eqn{X \neq Y}) or the self-term \eqn{P_{XX}} (if \eqn{X = Y})
+#' used in the confidence interval inequality.
 #'
-#' @return A numeric scalar.
+#' @return Numeric scalar. The computed cross-product.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -1098,12 +1113,14 @@ GetLM_WQ <- function(df, IdPW, IdPQ, dPW, dPQ, W, Q, X, Y) {
 #' This function iterates through covariate groups to compute the quadratic form locally,
 #' handling the centering of instruments within each block.
 #'
+#'
 #' @param df Data frame. Contains the observable variables and grouping indicators.
-#' @param X Name of the first variable column (unquoted), typically the endogenous regressor.
-#' @param e Name of the second variable column (unquoted), typically the outcome or residual.
-#' @param groupW Name of the covariate stratification variable (unquoted). Defines the blocks.
-#' @param group Name of the instrument grouping variable (unquoted). Defines the treatments within blocks.
+#' @param X Column name (unquoted). The first variable (e.g., endogenous regressor).
+#' @param e Column name (unquoted). The second variable (e.g., outcome or residual).
+#' @param groupW Column name (unquoted). The covariate stratification variable (defines blocks).
+#' @param group Column name (unquoted). The instrument grouping variable (defines treatments).
 #' @param noisy Logical. If \code{TRUE}, prints progress of the stratum iteration.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' This function implements the estimator for the signal component \eqn{S} in a stratified design:
@@ -1119,7 +1136,7 @@ GetLM_WQ <- function(df, IdPW, IdPQ, dPW, dPQ, W, Q, X, Y) {
 #' This corresponds to the numerator terms (\eqn{P_{XY}, P_{XX}}) for test inversion in
 #' designs with discrete controls.
 #'
-#' @return A numeric scalar representing the sum of stratum-specific quadratic forms.
+#' @return Numeric scalar. The sum of stratum-specific quadratic forms.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
@@ -1161,15 +1178,17 @@ GetLM <- function(df, X, e, groupW, group, noisy = FALSE) {
 #' Compute UJIVE Signal Component (No Covariates)
 #'
 #' @description
-#' Calculates the UJIVE "signal" or cross-product term \eqn{X' G e} for the "Many Means" design.
+#' Calculates the UJIVE "signal" or cross-product term \eqn{X' G e} for the grouped instrument design.
 #' This function exploits the block-diagonal structure of the projection matrix implied by
 #' mutually exclusive instrument groups to compute the quadratic form via efficient group-wise summation.
 #'
+#'
 #' @param df Data frame. Contains the observable variables and grouping indicator.
-#' @param X Name of the first variable column (unquoted), typically the endogenous regressor.
-#' @param e Name of the second variable column (unquoted), typically the outcome or residual.
-#' @param groupZ Name of the instrument grouping variable (unquoted).
+#' @param X Column name (unquoted). The first variable (e.g., endogenous regressor).
+#' @param e Column name (unquoted). The second variable (e.g., outcome or residual).
+#' @param groupZ Column name (unquoted). The instrument grouping variable.
 #' @param noisy Logical. If \code{TRUE}, prints progress of the group iteration.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' This function computes the scalar:
@@ -1179,7 +1198,7 @@ GetLM <- function(df, X, e, groupW, group, noisy = FALSE) {
 #' This calculation corresponds to the numerator components (\eqn{P_{XY}, P_{XX}}) of the
 #' score statistic variance estimator in designs without covariates.
 #'
-#' @return A numeric scalar representing the total sum of group-specific quadratic forms.
+#' @return Numeric scalar. The total sum of group-specific quadratic forms.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.

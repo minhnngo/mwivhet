@@ -9,26 +9,28 @@ GetCIcoef_nocov(df, groupZ, X, Y, MX, MY, q = qnorm(0.975)^2, noisy = FALSE)
 \arguments{
 \item{df}{Data frame. Contains the observable variables \eqn{X, Y} and their projections.}
 
-\item{groupZ}{Name of the instrument grouping variable (unquoted).}
+\item{groupZ}{Column name (unquoted). The instrument grouping variable.}
 
-\item{X}{Name of the endogenous regressor column (unquoted).}
+\item{X}{Column name (unquoted). The endogenous regressor.}
 
-\item{Y}{Name of the outcome variable column (unquoted).}
+\item{Y}{Column name (unquoted). The outcome variable.}
 
-\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+\item{MX}{Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).}
 
-\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+\item{MY}{Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).}
 
-\item{q}{Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).}
+\item{q}{Numeric scalar. Critical value for the test inversion (e.g., \eqn{1.96^2}).
+Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95 percent confidence interval.}
 
-\item{noisy}{Logical. If \code{TRUE}, prints progress during variance component calculation.}
+\item{noisy}{Logical. If \code{TRUE}, prints progress dots during calculation.
+Defaults to \code{FALSE}.}
 }
 \value{
-A numeric vector of length 3 containing \code{c(a, b, c)}.
+Numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
 Calculates the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
-used to construct confidence intervals for \eqn{\beta} in the "Many Means" setting (no covariates).
+used to construct confidence intervals for \eqn{\beta} in the grouped design setting (no covariates).
 This function inverts the UJIVE/LIML score test using optimized variance estimators for
 block-diagonal designs.
 }

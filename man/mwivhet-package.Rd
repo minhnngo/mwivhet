@@ -4,9 +4,9 @@
 \name{mwivhet-package}
 \alias{mwivhet}
 \alias{mwivhet-package}
-\title{mwivhet: What the Package Does (One Line, Title Case)}
+\title{mwivhet: Inference with Many Weak Instruments and Heterogeneity}
 \description{
-What the package does (one paragraph).
+Calculate test statistics and confidence intervals in a linear instrumental variables model with possibly many weak instruments and heterogeneous treatment effects, using methods developed in Yap (2025) \url{https://arxiv.org/abs/2408.11193}. Implements a novel score statistic and a leave-three-out variance estimator that is asymptotically uniformly most powerful unbiased. Also computes Lagrange Multiplier tests for robust inference in the presence of high-dimensional covariates.
 }
 \seealso{
 Useful links:
@@ -17,7 +17,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com}
+\strong{Maintainer}: Ngoc Minh Ngo \email{minh.ngongoc2@gmail.com} (Package implementation and documentation)
+
+Authors:
+\itemize{
+  \item Luther Yap \email{lyap@nus.edu.sg} (Original method and code implementation)
+}
 
 }
 \keyword{internal}

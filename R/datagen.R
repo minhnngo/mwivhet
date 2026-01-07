@@ -1,19 +1,19 @@
-#' Generate Data for Many Means Model (No Covariates)
+#' Generate Data for Grouped Instrument Model (No Covariates)
 #'
 #' @description
 #' Simulates data from a linear instrumental variables model with many instruments,
-#' specifically a "Many Means" design where instruments are mutually exclusive group
+#' specifically for design where instruments are mutually exclusive group
 #' indicators (e.g., Judges). The function allows for treatment effect heterogeneity
 #' (random coefficients) and correlation between heterogeneity and selection.
 #'
-#' @param S Numeric. The concentration parameter \eqn{\mu^2}, determining the strength of the instruments.
-#' @param Het Numeric. The heterogeneity parameter, scaling the variance of the random slope \eqn{\xi}.
+#'
+#' @param S Numeric. Concentration parameter \eqn{\mu^2}, determining instrument strength.
+#' @param Het Numeric. Heterogeneity parameter, scaling the variance of the random slope \eqn{\xi}.
 #' @param sigee Numeric. Variance of the structural error \eqn{\varepsilon}.
 #' @param sigvv Numeric. Variance of the first-stage error \eqn{v}.
 #' @param sigexi Numeric. Covariance between structural error \eqn{\varepsilon} and heterogeneity \eqn{\xi}.
 #' @param sigev Numeric. Covariance between structural error \eqn{\varepsilon} and first-stage error \eqn{v} (Endogeneity).
 #' @param ConTE Logical. If \code{TRUE}, simulates Constant Treatment Effects (\eqn{\xi = 0}).
-#'   If \code{FALSE}, simulates Heterogeneous Treatment Effects.
 #' @param beta Numeric. The true average treatment effect (ATE).
 #' @param beta0 Numeric. The null hypothesis value for \eqn{\beta} (used to compute residuals \eqn{e}).
 #' @param K Integer. The number of instruments (groups) minus one. Total groups \eqn{J = K + 1}.
@@ -117,10 +117,11 @@ GenData_nocov <- function(S = 3, Het = 3, sigee = 1, sigvv = 1, sigexi = 0, sige
 #' Generate Data with Covariates and Binary Endogenous Regressor
 #'
 #' @description
-#' Simulates data from a "Many Means" instrumental variable model that includes discrete
+#' Simulates data from a grouped instrument design model that includes discrete
 #' covariates and a binary endogenous regressor generated via a threshold crossing model.
-#' The function incorporates "Essential Heterogeneity," where the random treatment coefficient
+#' The function incorporates essential heterogeneity, where the random treatment coefficient
 #' is correlated with the first-stage selection error.
+#'
 #'
 #' @param S Numeric. Concentration parameter \eqn{\mu^2}, scaling the instrument strength.
 #' @param p1 Numeric (0 to 1). Probability parameter controlling the correlation between
@@ -131,8 +132,8 @@ GenData_nocov <- function(S = 3, Het = 3, sigee = 1, sigvv = 1, sigexi = 0, sige
 #' @param beta Numeric. Average Treatment Effect (ATE).
 #' @param beta0 Numeric. Null hypothesis value for \eqn{\beta}.
 #' @param omega Numeric. Scaling parameter for the covariate effects \eqn{\gamma}.
-#' @param K Integer. Number of instrument groups minus one (scaled for block construction).
-#' @param c Integer. Number of observations per group (balanced).
+#' @param K Integer. Number of instrument groups minus one.
+#' @param c Integer. Number of observations per group.
 #'
 #' @details
 #' The Data Generating Process (DGP) is structured as follows:
@@ -154,7 +155,8 @@ GenData_nocov <- function(S = 3, Het = 3, sigee = 1, sigvv = 1, sigexi = 0, sige
 #' between selection into treatment and treatment gains (Essential Heterogeneity).
 #'
 #' @return A data frame containing:
-#' \item{group}{Instrument group identifier.}
+#' \item{group}{Overall observation index.}
+#' \item{groupZ}{Instrument group identifier (the effective Z).}
 #' \item{groupW}{Covariate stratum identifier.}
 #' \item{pi}{Instrument effect \eqn{\pi}.}
 #' \item{gammad}{Covariate effect \eqn{\gamma}.}

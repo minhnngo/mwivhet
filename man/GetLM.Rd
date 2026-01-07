@@ -9,18 +9,19 @@ GetLM(df, X, e, groupW, group, noisy = FALSE)
 \arguments{
 \item{df}{Data frame. Contains the observable variables and grouping indicators.}
 
-\item{X}{Name of the first variable column (unquoted), typically the endogenous regressor.}
+\item{X}{Column name (unquoted). The first variable (e.g., endogenous regressor).}
 
-\item{e}{Name of the second variable column (unquoted), typically the outcome or residual.}
+\item{e}{Column name (unquoted). The second variable (e.g., outcome or residual).}
 
-\item{groupW}{Name of the covariate stratification variable (unquoted). Defines the blocks.}
+\item{groupW}{Column name (unquoted). The covariate stratification variable (defines blocks).}
 
-\item{group}{Name of the instrument grouping variable (unquoted). Defines the treatments within blocks.}
+\item{group}{Column name (unquoted). The instrument grouping variable (defines treatments).}
 
-\item{noisy}{Logical. If \code{TRUE}, prints progress of the stratum iteration.}
+\item{noisy}{Logical. If \code{TRUE}, prints progress of the stratum iteration.
+Defaults to \code{FALSE}.}
 }
 \value{
-A numeric scalar representing the sum of stratum-specific quadratic forms.
+Numeric scalar. The sum of stratum-specific quadratic forms.
 }
 \description{
 Calculates the UJIVE "signal" or cross-product term \eqn{X' G e} for a design where

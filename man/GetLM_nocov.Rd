@@ -9,19 +9,20 @@ GetLM_nocov(df, X, e, groupZ, noisy = FALSE)
 \arguments{
 \item{df}{Data frame. Contains the observable variables and grouping indicator.}
 
-\item{X}{Name of the first variable column (unquoted), typically the endogenous regressor.}
+\item{X}{Column name (unquoted). The first variable (e.g., endogenous regressor).}
 
-\item{e}{Name of the second variable column (unquoted), typically the outcome or residual.}
+\item{e}{Column name (unquoted). The second variable (e.g., outcome or residual).}
 
-\item{groupZ}{Name of the instrument grouping variable (unquoted).}
+\item{groupZ}{Column name (unquoted). The instrument grouping variable.}
 
-\item{noisy}{Logical. If \code{TRUE}, prints progress of the group iteration.}
+\item{noisy}{Logical. If \code{TRUE}, prints progress of the group iteration.
+Defaults to \code{FALSE}.}
 }
 \value{
-A numeric scalar representing the total sum of group-specific quadratic forms.
+Numeric scalar. The total sum of group-specific quadratic forms.
 }
 \description{
-Calculates the UJIVE "signal" or cross-product term \eqn{X' G e} for the "Many Means" design.
+Calculates the UJIVE "signal" or cross-product term \eqn{X' G e} for the grouped instrument design.
 This function exploits the block-diagonal structure of the projection matrix implied by
 mutually exclusive instrument groups to compute the quadratic form via efficient group-wise summation.
 }

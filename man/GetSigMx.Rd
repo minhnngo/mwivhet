@@ -7,35 +7,35 @@
 GetSigMx(df, groupW, group, X, Y, MX, MY, noisy = FALSE)
 }
 \arguments{
-\item{df}{Data frame. Contains the observable variables and their projections.}
+\item{df}{Data frame. Contains the variables used in estimation.}
 
-\item{groupW}{Name of the covariate stratification variable (unquoted).}
+\item{groupW}{Column name (unquoted). The covariate stratification variable.}
 
-\item{group}{Name of the instrument grouping variable (unquoted).}
+\item{group}{Column name (unquoted). The instrument grouping variable.}
 
-\item{X}{Name of the endogenous regressor column (unquoted).}
+\item{X}{Column name (unquoted). The endogenous regressor.}
 
-\item{Y}{Name of the outcome variable column (unquoted).}
+\item{Y}{Column name (unquoted). The outcome variable.}
 
-\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+\item{MX}{Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).}
 
-\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+\item{MY}{Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).}
 
-\item{noisy}{Logical. If \code{TRUE}, prints progress during variance component calculation.}
+\item{noisy}{Logical. If \code{TRUE}, prints progress during variance component calculation.
+Defaults to \code{FALSE}.}
 }
 \value{
-A numeric vector of length 6: \code{c(sig11, sig22, sig33, sig12, sig23, sig13)}.
+Numeric vector of length 6. Contains \code{c(sig11, sig22, sig33, sig12, sig23, sig13)}.
 }
 \description{
 Estimates the joint variance-covariance matrix of the three core quadratic forms used in
-UJIVE/LIML estimation: \eqn{Y'GY}, \eqn{X'GY}, and \eqn{X'GX}. This matrix is required
-for specification testing (e.g., J-test) and advanced inference on structural parameters.
+UJIVE/LIML estimation: \eqn{Y'GY}, \eqn{X'GY}, and \eqn{X'GX}.
 }
 \details{
-The function estimates the covariance matrix \eqn{\Sigma_\Psi} for the vector:
+The function estimates the covariance components for the vector of quadratic forms:
 \deqn{\Psi = [Y'GY, \quad X'GY, \quad X'GX]^T}
 
-The elements of the returned vector correspond to the upper triangle of \eqn{\Sigma_\Psi}:
+The returned vector contains the unique elements of the covariance matrix \eqn{\Sigma_\Psi}:
 \itemize{
 \item \code{sig11}: \eqn{Var(Y'GY)}
 \item \code{sig22}: \eqn{Var(X'GY)}

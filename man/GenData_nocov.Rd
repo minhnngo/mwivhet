@@ -2,7 +2,7 @@
 % Please edit documentation in R/datagen.R
 \name{GenData_nocov}
 \alias{GenData_nocov}
-\title{Generate Data for Many Means Model (No Covariates)}
+\title{Generate Data for Grouped Instrument Model (No Covariates)}
 \usage{
 GenData_nocov(
   S = 3,
@@ -19,9 +19,9 @@ GenData_nocov(
 )
 }
 \arguments{
-\item{S}{Numeric. The concentration parameter \eqn{\mu^2}, determining the strength of the instruments.}
+\item{S}{Numeric. Concentration parameter \eqn{\mu^2}, determining instrument strength.}
 
-\item{Het}{Numeric. The heterogeneity parameter, scaling the variance of the random slope \eqn{\xi}.}
+\item{Het}{Numeric. Heterogeneity parameter, scaling the variance of the random slope \eqn{\xi}.}
 
 \item{sigee}{Numeric. Variance of the structural error \eqn{\varepsilon}.}
 
@@ -31,8 +31,7 @@ GenData_nocov(
 
 \item{sigev}{Numeric. Covariance between structural error \eqn{\varepsilon} and first-stage error \eqn{v} (Endogeneity).}
 
-\item{ConTE}{Logical. If \code{TRUE}, simulates Constant Treatment Effects (\eqn{\xi = 0}).
-If \code{FALSE}, simulates Heterogeneous Treatment Effects.}
+\item{ConTE}{Logical. If \code{TRUE}, simulates Constant Treatment Effects (\eqn{\xi = 0}).}
 
 \item{beta}{Numeric. The true average treatment effect (ATE).}
 
@@ -57,7 +56,7 @@ A data frame containing:
 }
 \description{
 Simulates data from a linear instrumental variables model with many instruments,
-specifically a "Many Means" design where instruments are mutually exclusive group
+specifically for design where instruments are mutually exclusive group
 indicators (e.g., Judges). The function allows for treatment effect heterogeneity
 (random coefficients) and correlation between heterogeneity and selection.
 }

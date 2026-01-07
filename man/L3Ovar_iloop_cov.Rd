@@ -7,34 +7,34 @@
 L3Ovar_iloop_cov(X, e, P, G, noisy = FALSE)
 }
 \arguments{
-\item{X}{A numeric vector of length n containing the endogenous variable.}
+\item{X}{Numeric vector of length n. The endogenous variable.}
 
-\item{e}{A numeric vector of length n containing the residuals under the null hypothesis
+\item{e}{Numeric vector of length n. Residuals under the null hypothesis
 (\eqn{e = Y - X\beta_0}).}
 
-\item{P}{A numeric n x n projection matrix of the instruments (and potentially covariates).
+\item{P}{Matrix of dimension n x n. Projection matrix of the instruments (and potentially covariates).
 Corresponds to matrix \eqn{P} or \eqn{H_Q} in the paper.}
 
-\item{G}{A numeric n x n weighting matrix used in the JIVE/UJIVE estimator.
+\item{G}{Matrix of dimension n x n. Weighting matrix used in the JIVE/UJIVE estimator.
 For standard JIVE, G is equal to P. For UJIVE with covariates, G is the adjusted
 matrix defined in Section 3.1.}
 
-\item{noisy}{A logical indicating whether to print progress dots during the loop.
+\item{noisy}{Logical. If \code{TRUE}, print progress dots during the loop.
 Defaults to \code{FALSE}.}
 }
 \value{
-A scalar numeric value representing the estimated variance \eqn{\hat{V}_{LM}}.
+Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 }
 \description{
 Calculates the consistent variance estimator (\eqn{\hat{V}_{LM}}) for the Lagrange Multiplier (LM)
-test statistic. This estimator is robust to both many weak instruments and heterogeneous treatment effects.
-
-The function implements the "Leave-Three-Out" (L3O) approach proposed in Yap (2025),
-which corrects for biases in variance estimation that arise when reduced-form coefficients
-are not consistently estimable (e.g., due to many instruments).
+test statistic using the "Leave-Three-Out" (L3O) adjustment.
 }
 \details{
-The function computes the variance estimator defined in Equation (9) of the paper:
+This variance estimator is robust to both many weak instruments and heterogeneous treatment effects.
+It corrects for biases in variance estimation that arise when reduced-form coefficients
+are not consistently estimable.
+
+The function computes the variance estimator defined in Equation (9) of Yap (2025):
 \deqn{\hat{V}_{LM} = A_1 + A_2 + A_3 + A_4 + A_5}
 
 It iterates through each observation \eqn{i} to compute the necessary adjustments
@@ -43,9 +43,9 @@ optimized matrix operations to handle the double sums over \eqn{j} and \eqn{k}.
 
 Specifically:
 \itemize{
-\item \strong{A1-A3} capture the core variance components involving interactions between
+\item \strong{A1, A2, A3} capture the core variance components involving interactions between
 the instruments, endogenous variable, and residuals.
-\item \strong{A4-A5} are correction terms that account for the variability from estimating
+\item \strong{A4, A5} are correction terms that account for the variability from estimating
 the reduced-form coefficients (which cannot be treated as fixed in the many-instrument setting).
 }
 

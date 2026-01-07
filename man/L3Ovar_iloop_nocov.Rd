@@ -7,17 +7,17 @@
 L3Ovar_iloop_nocov(X, e, P)
 }
 \arguments{
-\item{X}{Numeric vector. The endogenous regressor.}
+\item{X}{Numeric vector of length n. The endogenous regressor.}
 
-\item{e}{Numeric vector. The residual vector.}
+\item{e}{Numeric vector of length n. Residuals under the null hypothesis.}
 
-\item{P}{Matrix. The \eqn{N \times N} projection matrix (must be symmetric).}
+\item{P}{Matrix of dimension n x n. The projection matrix (must be symmetric).}
 }
 \value{
-A numeric scalar representing the estimated variance.
+Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 }
 \description{
-Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
+Calculates the Leave-Three-Out (L3O) variance estimator (\eqn{\hat{V}_{LM}}) for the score statistic
 in the "No Covariates" setting. Unlike the group-optimized functions, this implementation
 loops over every observation \eqn{i}, making it suitable for any design where the
 weighting matrix is symmetric (\eqn{G = P}), even if it lacks a strict block-diagonal structure.
@@ -26,7 +26,7 @@ weighting matrix is symmetric (\eqn{G = P}), even if it lacks a strict block-dia
 This function implements the variance estimator \eqn{\hat{V}_{LM}} under the assumption
 that there are no covariates, implying \eqn{G = P} and \eqn{P} is symmetric.
 
-\strong{Algorithm:}
+\strong{Specifically:}
 The function iterates through each observation \eqn{i} (1 to \eqn{N}). Inside the loop, it:
 \enumerate{
 \item Extracts the \eqn{i}-th column of \eqn{P} and \eqn{M}.

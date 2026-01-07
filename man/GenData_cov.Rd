@@ -35,13 +35,14 @@ the first-stage error \eqn{v} and the treatment heterogeneity \eqn{\xi}.}
 
 \item{omega}{Numeric. Scaling parameter for the covariate effects \eqn{\gamma}.}
 
-\item{K}{Integer. Number of instrument groups minus one (scaled for block construction).}
+\item{K}{Integer. Number of instrument groups minus one.}
 
-\item{c}{Integer. Number of observations per group (balanced).}
+\item{c}{Integer. Number of observations per group.}
 }
 \value{
 A data frame containing:
-\item{group}{Instrument group identifier.}
+\item{group}{Overall observation index.}
+\item{groupZ}{Instrument group identifier (the effective Z).}
 \item{groupW}{Covariate stratum identifier.}
 \item{pi}{Instrument effect \eqn{\pi}.}
 \item{gammad}{Covariate effect \eqn{\gamma}.}
@@ -53,9 +54,9 @@ A data frame containing:
 \item{MX, Me, MY}{Variables projected onto the annihilator \eqn{M = I - P}.}
 }
 \description{
-Simulates data from a "Many Means" instrumental variable model that includes discrete
+Simulates data from a grouped instrument design model that includes discrete
 covariates and a binary endogenous regressor generated via a threshold crossing model.
-The function incorporates "Essential Heterogeneity," where the random treatment coefficient
+The function incorporates essential heterogeneity, where the random treatment coefficient
 is correlated with the first-stage selection error.
 }
 \details{

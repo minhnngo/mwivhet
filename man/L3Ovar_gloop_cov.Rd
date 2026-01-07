@@ -7,28 +7,28 @@
 L3Ovar_gloop_cov(df, group, groupW, X, e, MX, Me)
 }
 \arguments{
-\item{df}{Data frame. Contains the data vectors and grouping variables.}
+\item{df}{Data frame. Contains the variables used in estimation.}
 
-\item{group}{Name of the instrument grouping variable (unquoted).}
+\item{group}{Column name (unquoted). The instrument grouping variable.}
 
-\item{groupW}{Name of the covariate stratification variable (unquoted).}
+\item{groupW}{Column name (unquoted). The covariate stratification variable.}
 
-\item{X}{Name of the endogenous regressor column (unquoted).}
+\item{X}{Column name (unquoted). The endogenous regressor.}
 
-\item{e}{Name of the residual column (unquoted).}
+\item{e}{Column name (unquoted). Residuals under the null hypothesis (\eqn{Y - X\beta_0}).}
 
-\item{MX}{Name of the column (unquoted) containing \eqn{M_i X_i} (leverage-adjusted regressor).}
+\item{MX}{Column name (unquoted). Leverage-adjusted regressor (\eqn{M_i X_i}).}
 
-\item{Me}{Name of the column (unquoted) containing \eqn{M_i e_i} (leverage-adjusted residual).}
+\item{Me}{Column name (unquoted). Leverage-adjusted residual (\eqn{M_i e_i}).}
 }
 \value{
-A numeric scalar representing the estimated variance.
+Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 }
 \description{
-Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
-in a grouped instrument design with covariates. This function simultaneously computes
-all five variance components (\eqn{A_1} through \eqn{A_5}) by exploiting the block-diagonal
-symmetry of the projection matrices.
+Computes the Leave-Three-Out (L3O) variance estimator (\eqn{\hat{V}_{LM}}) for the score statistic
+in a grouped instrument design with covariates. This function simultaneously calculates
+all five variance components by exploiting the block-diagonal symmetry of the projection matrices
+inherent to discrete instruments.
 }
 \details{
 This function implements the variance estimator \eqn{\hat{V}_{LM}} for the Limited Information
@@ -36,14 +36,11 @@ Maximum Likelihood (LIML) or UJIVE estimator. It computes:
 \deqn{\hat{V} = A_1 + 2A_2 + A_3 - A_4 - A_5}
 
 Because the design implies symmetric weighting matrices (\eqn{G_{ij} = G_{ji}}), the function
-simplifies the asymmetric components (\eqn{A_2, A_3}) to use the same logic as \eqn{A_1},
-and collapses \eqn{A_5} to use the same squared-weight logic as \eqn{A_4}.
+simplifies the asymmetric components.
 
 \strong{Components:}
 \itemize{
-\item \eqn{A_1}: Variance of the first-stage signal (involving \eqn{X_j X_k}).
-\item \eqn{A_2}: Covariance between signal and error (involving \eqn{X_j e_k}).
-\item \eqn{A_3}: Variance of the error projection (involving \eqn{e_j e_k}).
-\item \eqn{A_4, A_5}: Bias corrections for "own-observation" variance contributions.
+\item \strong{A1, A2, A3}: Variance and covariance of the score statistic. Calculated via 5 sub-components each.
+\item \strong{A4, A5}: Bias correction terms for "own-observation" variance contributions. Calculated via 4 sub-components each.
 }
 }

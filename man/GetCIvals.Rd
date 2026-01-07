@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference.R
 \name{GetCIvals}
 \alias{GetCIvals}
-\title{Calculate Quadratic Roots for Confidence Intervals}
+\title{Compute Quadratic Roots for Confidence Sets}
 \usage{
 GetCIvals(CIcoef)
 }
@@ -11,7 +11,7 @@ GetCIvals(CIcoef)
 inequality, typically obtained from \code{\link{GetCIcoef}}.}
 }
 \value{
-A numeric vector of length 2 containing the two roots.
+Numeric vector of length 2. Contains the two roots.
 }
 \description{
 Computes the roots of the quadratic equation \eqn{a\beta^2 + b\beta + c = 0}.
@@ -22,7 +22,7 @@ the UJIVE/LIML score test.
 This function applies the standard quadratic formula:
 \deqn{\beta_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}
 
-\strong{Warning:} This function does not check the sign of the discriminant. It is intended
+\strong{Note:} This function does not check the sign of the discriminant. It is intended
 to be called by a wrapper function (like \code{\link{GetCItypebd}}) that first verifies
 the existence of real roots (i.e., \eqn{b^2 - 4ac \ge 0}).
 

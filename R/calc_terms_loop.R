@@ -2,33 +2,31 @@
 #'
 #' @description
 #' Calculates a variance component structured like the \eqn{A_1} term in the L3O variance
-#' estimator, allowing for arbitrary vectors in the summation positions. This generalized
-#' function is used to compute \eqn{A_1}, \eqn{A_2}, and \eqn{A_3} by permuting the
-#' input vectors (e.g., swapping regressors \eqn{X} and residuals \eqn{e}).
+#' estimator. This function computes the "outward" interaction \eqn{G_{ij} G_{ik}}, representing
+#' the variance contribution from observation \eqn{i} acting on pairs \eqn{j, k}.
 #'
-#' @param df Data frame. Contains the data vectors specified by \code{ipos}, \code{jpos},
-#'   \code{kpos}, and \code{lpos}.
-#' @param P Matrix of dimension \eqn{n \times n}. The projection matrix of instruments.
-#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
-#' @param ipos Name of the column in \code{df} (unquoted) corresponding to the outer summation weight \eqn{i}.
-#' @param jpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{j}.
-#' @param kpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{k}.
-#' @param lpos Name of the column in \code{df} (unquoted) corresponding to the bias correction/residual term.
+#'
+#' @param df Data frame. Contains the variables specified by the position arguments.
+#' @param P Matrix of dimension n x n. The projection matrix of instruments.
+#' @param G Matrix of dimension n x n. The UJIVE weighting matrix.
+#' @param ipos Column name (unquoted). Outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Column name (unquoted). Inner summation term \eqn{v^{(J)}}.
+#' @param kpos Column name (unquoted). Inner summation term \eqn{v^{(K)}}.
+#' @param lpos Column name (unquoted). Bias correction/residual term \eqn{v^{(L)}}.
 #' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' This function computes the scalar:
-#' \deqn{S = \sum_{i} v_i^{(I)} \left[ v_i^{(L)} \sum_{j \neq i} \sum_{k \neq i} G_{ij} v_j^{(J)} G_{ik} v_k^{(K)} W_{ijk} - \text{BiasCorrect}(v^{(L)}, v^{(J)}, v^{(K)}) \right]}
-#' where \eqn{v^{(I)}, v^{(J)}, v^{(K)}, v^{(L)}} correspond to the vectors specified by
-#' \code{ipos}, \code{jpos}, \code{kpos}, and \code{lpos} respectively. \eqn{W_{ijk}} represents
-#' the Leave-Three-Out weighting derived from the annihilator matrix \eqn{M = I-P}.
+#' \deqn{S = \sum_{i} v_i^{(I)} \left[ v_i^{(L)} \sum_{j \neq i} \sum_{k \neq i} G_{ij} v_j^{(J)} G_{ik} v_k^{(K)} W_{ijk} - \text{BiasCorrect} \right]}
+#' where \eqn{W_{ijk}} represents the Leave-Three-Out weighting derived from the annihilator matrix \eqn{M = I-P}.
 #'
-#' The function implements the bias correction expansion (terms \eqn{A_{12}} through \eqn{A_{15}})
-#' required for consistency under many weak instruments.
+#' This structure is symmetric with respect to indices \eqn{j} and \eqn{k} relative to \eqn{i}.
+#' It corresponds to the variance of the fitted values (signal) in the score statistic.
 #'
-#' @return A numeric scalar representing the computed sum.
+#' @return Numeric scalar.
 #'
-#' @export
+#' @noRd
 A1type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   # A11vecs <- A12vecs <- A13vecs <- A14vecs <- A15vecs <- rep(0,max(df$group))
 
@@ -92,36 +90,31 @@ A1type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
 #' Compute Generalized A2-Type Variance Component
 #'
 #' @description
-#' Calculates a variance component structurally equivalent to the \eqn{A_2} term in the
-#' L3O variance estimator. This function handles asymmetric weighting structures where
-#' the summation involves terms of the form \eqn{G_{ij} G_{ki}} (chaining indices),
-#' differing from the symmetric \eqn{G_{ij} G_{ik}} form calculated by \code{A1type_iloop_sum}.
+#' Calculates a variance component structurally equivalent to the \eqn{A_2} term.
+#' This function computes the "chain" interaction \eqn{G_{ij} G_{ki}}, required for
+#' covariance terms when the weighting matrix \eqn{G} is asymmetric.
 #'
-#' @param df Data frame. Contains the data vectors specified by \code{ipos}, \code{jpos},
-#'   \code{kpos}, and \code{lpos}.
-#' @param P Matrix of dimension \eqn{n \times n}. The projection matrix of instruments.
-#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
-#' @param ipos Name of the column in \code{df} (unquoted) corresponding to the outer summation weight \eqn{i}.
-#' @param jpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{j}.
-#' @param kpos Name of the column in \code{df} (unquoted) corresponding to the inner summation term \eqn{k}.
-#' @param lpos Name of the column in \code{df} (unquoted) corresponding to the bias correction/residual term.
+#' @param df Data frame. Contains the variables specified by the position arguments.
+#' @param P Matrix of dimension n x n. The projection matrix of instruments.
+#' @param G Matrix of dimension n x n. The UJIVE weighting matrix.
+#' @param ipos Column name (unquoted). Outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Column name (unquoted). Inner summation term \eqn{v^{(J)}}.
+#' @param kpos Column name (unquoted). Inner summation term \eqn{v^{(K)}}.
+#' @param lpos Column name (unquoted). Bias correction/residual term \eqn{v^{(L)}}.
 #' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' This function computes the scalar:
 #' \deqn{S = \sum_{i} v_i^{(I)} \left[ v_i^{(L)} \sum_{j \neq i} \sum_{k \neq i} G_{ij} v_j^{(J)} G_{ki} v_k^{(K)} W_{ijk} - \text{BiasCorrect} \right]}
-#' where \eqn{v^{(I)}, v^{(J)}, v^{(K)}, v^{(L)}} correspond to the input vectors.
 #'
-#' The primary distinction from \code{A1type_iloop_sum} is the use of \eqn{G_{ki}} (the \eqn{i}-th element of column \eqn{k}, or row \eqn{k} column \eqn{i})
-#' in the second position, rather than \eqn{G_{ik}}. This asymmetric structure is required
-#' for interaction terms in the variance of the score statistic (e.g., \eqn{A_2} and \eqn{A_5} in Yap 2025).
+#' The primary distinction from \code{A1type_iloop_sum} is the use of \eqn{G_{ki}} (column \eqn{k}, row \eqn{i})
+#' in the second position. This asymmetric structure captures the interaction between
+#' fitted values and residuals.
 #'
-#' @return A numeric scalar.
+#' @return Numeric scalar.
 #'
-#' @references
-#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
-#'
-#' @export
+#' @noRd
 A2type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
   df$ipos <- eval(substitute(ipos), df)
   df$jpos <- eval(substitute(jpos), df)
@@ -185,34 +178,28 @@ A2type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
 #' Compute Generalized A3-Type Variance Component
 #'
 #' @description
-#' Calculates a variance component structurally equivalent to the \eqn{A_3} term in the
-#' L3O variance estimator. This function handles "incoming" weighting structures where
-#' the summation involves weights of the form \eqn{G_{ji} G_{ki}} (where indices \eqn{j}
-#' and \eqn{k} both target \eqn{i}).
+#' Calculates a variance component structurally equivalent to the \eqn{A_3} term.
+#' This function computes the "inward" interaction \eqn{G_{ji} G_{ki}}, representing
+#' the variance contribution from others acting on observation \eqn{i}.
 #'
-#' @param df Data frame. Contains the data vectors specified by the position arguments.
-#' @param P Matrix of dimension \eqn{n \times n}. The orthogonal projection matrix of instruments.
-#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
-#' @param ipos Name of the column in \code{df} (unquoted) for the outer summation weight \eqn{v^{(I)}}.
-#' @param jpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ji}}.
-#' @param kpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(K)}} weighted by \eqn{G_{ki}}.
-#' @param lpos Name of the column in \code{df} (unquoted) for the scalar bias correction term \eqn{v^{(L)}}.
+#' @param df Data frame. Contains the variables specified by the position arguments.
+#' @param P Matrix of dimension n x n. The projection matrix of instruments.
+#' @param G Matrix of dimension n x n. The UJIVE weighting matrix.
+#' @param ipos Column name (unquoted). Outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Column name (unquoted). Inner summation term \eqn{v^{(J)}}.
+#' @param kpos Column name (unquoted). Inner summation term \eqn{v^{(K)}}.
+#' @param lpos Column name (unquoted). Bias correction/residual term \eqn{v^{(L)}}.
 #' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
 #' This function computes the scalar:
 #' \deqn{S = \sum_{i} v_i^{(I)} \left[ v_i^{(L)} \sum_{j \neq i} \sum_{k \neq i} G_{ji} v_j^{(J)} G_{ki} v_k^{(K)} W_{ijk} - \text{BiasCorrect} \right]}
-#' where \eqn{W_{ijk}} is the Leave-Three-Out weighting derived from the annihilator matrix.
 #'
-#' This term corresponds to \eqn{A_3} in Yap (2025). It captures the variance arising from
-#' the "reverse" influence of observations \eqn{j} and \eqn{k} on observation \eqn{i}
-#' through the weighting matrix. This is typically used to estimate the variance of the
-#' endogenous variable \eqn{X} attributed to the residuals \eqn{e}.
+#' This corresponds to the variance of the residuals projected onto the instruments,
+#' typically denoted as \eqn{e' G' G e} in matrix notation (specifically the diagonal-removed part).
 #'
-#' @return A numeric scalar.
-#'
-#' @references
-#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#' @return Numeric scalar.
 #'
 #' @noRd
 A3type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
@@ -277,34 +264,26 @@ A3type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
 #'
 #' @description
 #' Calculates the "own-variance" bias correction component, structurally equivalent to the
-#' \eqn{A_4} term in the L3O variance estimator. This term captures the bias arising from
-#' the squared diagonal weights \eqn{G_{ji}^2} (or \eqn{G_{ji}G_{ij}} in symmetric cases)
-#' and is used to remove the positive bias introduced by the variance of the instrument
-#' projection errors.
+#' \eqn{A_4} term. This term captures the bias arising from the squared diagonal weights
+#' \eqn{G_{ji}^2}.
 #'
-#' @param df Data frame. Contains the data vectors specified by the position arguments.
-#' @param P Matrix of dimension \eqn{n \times n}. The orthogonal projection matrix of instruments.
-#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
-#' @param ipos Name of the column in \code{df} (unquoted) for the outer summation weight \eqn{v^{(I)}}.
-#' @param jpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ji}^2}.
-#' @param kpos Name of the column in \code{df} (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
-#' @param lpos Name of the column in \code{df} (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param df Data frame. Contains the variables specified by the position arguments.
+#' @param P Matrix of dimension n x n. The projection matrix of instruments.
+#' @param G Matrix of dimension n x n. The UJIVE weighting matrix.
+#' @param ipos Column name (unquoted). Outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Column name (unquoted). Inner summation term \eqn{v^{(J)}}.
+#' @param kpos Column name (unquoted). Term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Column name (unquoted). Residual/bias interaction term \eqn{v^{(L)}}.
 #' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
-#' This function computes a scalar representing the bias correction for the "own-observation"
-#' variance contributions. In the notation of Yap (2025), this corresponds to \eqn{A_4}.
-#'
-#' Unlike \eqn{A_1} through \eqn{A_3}, which estimate signal variances and cross-covariances,
-#' \eqn{A_4} specifically estimates the quantity:
+#' This function computes:
 #' \deqn{S = \sum_{i} v_i^{(I)} \sum_{j \neq i} G_{ji}^2 \widehat{Var}(v_j) W_{ij}}
-#' adjusted for the leverage exerted by the annihilator matrix \eqn{M} to ensure unbiasedness.
-#' The term involves element-wise squaring of the weighting matrix column (\code{Gi^2}).
 #'
-#' @return A numeric scalar.
+#' It removes the positive bias introduced by the variance of the instrument projection errors.
 #'
-#' @references
-#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#' @return Numeric scalar.
 #'
 #' @noRd
 A4type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
@@ -376,36 +355,27 @@ A4type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {
 #'
 #' @description
 #' Calculates the "asymmetry" bias correction component, structurally equivalent to the
-#' \eqn{A_5} term in the L3O variance estimator. This term captures the bias arising from
-#' the interaction of row and column weights \eqn{G_{ij} G_{ji}} and is required when
-#' the weighting matrix \eqn{G} is asymmetric (e.g., UJIVE).
+#' \eqn{A_5} term. This term captures the bias arising from the interaction of row and column
+#' weights \eqn{G_{ij} G_{ji}}.
 #'
-#' @param df Data frame. Contains the data vectors specified by the position arguments.
-#' @param P Matrix of dimension \eqn{n \times n}. The orthogonal projection matrix of instruments.
-#' @param G Matrix of dimension \eqn{n \times n}. The UJIVE weighting matrix.
-#' @param ipos Name of the column in \code{df} (unquoted) for the outer summation weight \eqn{v^{(I)}}.
-#' @param jpos Name of the column in \code{df} (unquoted) for the inner term \eqn{v^{(J)}} weighted by \eqn{G_{ij}G_{ji}}.
-#' @param kpos Name of the column in \code{df} (unquoted) for the term interacting with leverage \eqn{v^{(K)}}.
-#' @param lpos Name of the column in \code{df} (unquoted) for the residual/bias interaction term \eqn{v^{(L)}}.
+#' @param df Data frame. Contains the variables specified by the position arguments.
+#' @param P Matrix of dimension n x n. The projection matrix of instruments.
+#' @param G Matrix of dimension n x n. The UJIVE weighting matrix.
+#' @param ipos Column name (unquoted). Outer summation weight \eqn{v^{(I)}}.
+#' @param jpos Column name (unquoted). Inner summation term \eqn{v^{(J)}}.
+#' @param kpos Column name (unquoted). Term interacting with leverage \eqn{v^{(K)}}.
+#' @param lpos Column name (unquoted). Residual/bias interaction term \eqn{v^{(L)}}.
 #' @param noisy Logical. If \code{TRUE}, prints progress to the console.
+#'   Defaults to \code{FALSE}.
 #'
 #' @details
-#' This function computes a scalar representing the bias correction for variance contributions
-#' arising from the asymmetry of the weighting matrix. In the notation of Yap (2025), this
-#' corresponds to \eqn{A_5}.
-#'
-#' The term estimates:
+#' This function computes:
 #' \deqn{S = \sum_{i} v_i^{(I)} \sum_{j \neq i} G_{ij} G_{ji} \widehat{Var}(v_j) W_{ij}}
-#' adjusted for leverage to ensure unbiasedness.
 #'
-#' If \eqn{G} is symmetric (e.g., \eqn{G=P}), then \eqn{G_{ij} = G_{ji}}, making this term
-#' identical to \code{A4type_iloop_sum}. For asymmetric \eqn{G}, both \eqn{A_4} and \eqn{A_5}
-#' must be calculated and subtracted from the total variance.
+#' If \eqn{G} is symmetric (e.g., \eqn{G=P}), \eqn{A_5} is identical to \eqn{A_4}.
+#' For asymmetric \eqn{G} (e.g., UJIVE), this term accounts for the distinct bias channel.
 #'
-#' @return A numeric scalar.
-#'
-#' @references
-#' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.
+#' @return Numeric scalar.
 #'
 #' @noRd
 A5type_iloop_sum <- function(df, P, G, ipos, jpos, kpos, lpos, noisy = FALSE) {

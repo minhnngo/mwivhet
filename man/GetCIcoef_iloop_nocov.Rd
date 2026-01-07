@@ -7,18 +7,20 @@
 GetCIcoef_iloop_nocov(X, Y, P, q = qnorm(0.975)^2, noisy = FALSE)
 }
 \arguments{
-\item{X}{Numeric vector. The endogenous regressor.}
+\item{X}{Numeric vector of length n. The endogenous regressor.}
 
-\item{Y}{Numeric vector. The outcome variable.}
+\item{Y}{Numeric vector of length n. The outcome variable.}
 
-\item{P}{Matrix. The \eqn{N \times N} symmetric projection matrix.}
+\item{P}{Matrix of dimension n x n. The symmetric projection matrix.}
 
-\item{q}{Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).}
+\item{q}{Numeric scalar. The critical value for the test inversion (typically \eqn{1.96^2}).
+Defaults to \code{qnorm(0.975)^2}.}
 
-\item{noisy}{Logical. If \code{TRUE}, prints progress through the N loops.}
+\item{noisy}{Logical. If \code{TRUE}, prints progress through the N loops.
+Defaults to \code{FALSE}.}
 }
 \value{
-A numeric vector of length 3 containing \code{c(a, b, c)}.
+Numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
 Calculates the coefficients \eqn{(a, b, c)} for the confidence interval quadratic inequality
@@ -27,7 +29,7 @@ This function performs a highly optimized single-pass loop to compute all polyno
 of the variance estimator \eqn{\hat{V}(\beta)} simultaneously.
 }
 \details{
-This function is the "heavy lifting" solver for generic symmetric designs (e.g., Ridge IV, Kernel IV).
+This function is the solver for generic symmetric designs.
 It inverts the test statistic:
 \deqn{\frac{(P_{XY} - \beta P_{XX})^2}{C_2 \beta^2 + C_1 \beta + C_0} \leq q}
 

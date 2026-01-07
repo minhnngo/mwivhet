@@ -19,24 +19,26 @@ GetL3OCIcoef_fast(
 \arguments{
 \item{df}{Data frame. Contains the observable variables and grouping indicators.}
 
-\item{groupW}{Name of the covariate stratification variable (unquoted).}
+\item{groupW}{Column name (unquoted). The covariate stratification variable.}
 
-\item{groupQ}{Name of the instrument grouping variable (unquoted).}
+\item{groupQ}{Column name (unquoted). The instrument grouping variable.}
 
-\item{X}{Name of the endogenous regressor column (unquoted).}
+\item{X}{Column name (unquoted). The endogenous regressor.}
 
-\item{Y}{Name of the outcome variable column (unquoted).}
+\item{Y}{Column name (unquoted). The outcome variable.}
 
-\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+\item{MX}{Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).}
 
-\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+\item{MY}{Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).}
 
-\item{q}{Numeric. The critical value for test inversion (typically \eqn{1.96^2}).}
+\item{q}{Numeric scalar. The critical value for test inversion (typically \eqn{1.96^2}).
+Defaults to \code{qnorm(.975)^2}.}
 
-\item{noisy}{Logical. If \code{TRUE}, prints progress.}
+\item{noisy}{Logical. If \code{TRUE}, prints progress.
+Defaults to \code{FALSE}.}
 }
 \value{
-A numeric vector of length 3 containing \code{c(a, b, c)}.
+Numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
 Calculates the coefficients \eqn{(a, b, c)} for the confidence interval quadratic inequality
@@ -45,13 +47,13 @@ This function is optimized for designs where projection matrices are block-diago
 with respect to \code{groupW} but potentially asymmetric within blocks due to covariate adjustments.
 }
 \details{
-This function performs a "Stratified Mega-Loop":
+This function performs a loop:
 \enumerate{
-\item \strong{Stratification:} Splits data by \code{groupW}. Computes local projection matrices
+\item Splits data by \code{groupW}. Computes local projection matrices
 \eqn{P_Q} and \eqn{P_W} for each stratum.
-\item \strong{Asymmetry:} Calculates the full UJIVE weighting matrix \eqn{G = U(P_Q) - U(P_W)} locally.
+\item Calculates the full UJIVE weighting matrix \eqn{G = U(P_Q) - U(P_W)} locally.
 Since \eqn{G} is asymmetric, it computes all 5 variance components.
-\item \strong{Optimization:} Accumulates all polynomial coefficients for \eqn{\hat{V}(\beta)}
+\item Accumulates all polynomial coefficients for \eqn{\hat{V}(\beta)}
 simultaneously using extensive pre-calculation of vector products.
 }
 }

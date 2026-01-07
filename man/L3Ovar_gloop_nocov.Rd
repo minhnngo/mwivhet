@@ -2,45 +2,44 @@
 % Please edit documentation in R/l3o_variance.R
 \name{L3Ovar_gloop_nocov}
 \alias{L3Ovar_gloop_nocov}
-\title{Compute L3O Variance for Score Statistic (No Covariates)}
+\title{Compute L3O Variance for Score Statistic (Grouped Design, No Covariates)}
 \usage{
 L3Ovar_gloop_nocov(df, group, X, e, MX, Me)
 }
 \arguments{
-\item{df}{Data frame. Contains the data vectors and grouping variables.}
+\item{df}{Data frame. Contains the variables used in estimation.}
 
-\item{group}{Name of the instrument grouping variable (unquoted).}
+\item{group}{Column name (unquoted). The instrument grouping variable.}
 
-\item{X}{Name of the endogenous regressor column (unquoted).}
+\item{X}{Column name (unquoted). The endogenous regressor.}
 
-\item{e}{Name of the residual column (unquoted).}
+\item{e}{Column name (unquoted). Residuals under the null hypothesis (\eqn{Y - X\beta_0}).}
 
-\item{MX}{Name of the column (unquoted) containing \eqn{M_i X_i} (leverage-adjusted regressor).}
+\item{MX}{Column name (unquoted). Leverage-adjusted regressor (\eqn{M_i X_i}).}
 
-\item{Me}{Name of the column (unquoted) containing \eqn{M_i e_i} (leverage-adjusted residual).}
+\item{Me}{Column name (unquoted). Leverage-adjusted residual (\eqn{M_i e_i}).}
 }
 \value{
-A numeric scalar representing the total estimated variance.
+Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 }
 \description{
-Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
-in a "Many Means" design (mutually exclusive instrument groups with no covariates).
+Computes the Leave-Three-Out (L3O) variance estimator (\eqn{\hat{V}_{LM}}) for the score statistic
+in a grouped instrument design without covariates.
 This function leverages the block-diagonal structure of the projection matrix to
-compute all variance components (\eqn{A_1} through \eqn{A_5}) locally within each group.
+compute all variance components locally within each group.
 }
 \details{
-This function implements the variance estimator \eqn{\hat{V}_{LM}} for the case where
-\eqn{G = P} (symmetric weights) and the design matrix is block-diagonal.
+This function implements the variance estimator \eqn{\hat{V}_{LM}} for the specific case where
+\eqn{G = P} (symmetric weights) and the design matrix is block-diagonal (no covariates).
 
-\strong{Optimization:}
 Instead of operating on \eqn{N \times N} matrices, the function iterates through groups.
 Within each group subset, the projection matrix is dense but small. The function computes:
 \deqn{\hat{V} = \sum_g (A_{1g} + 2A_{2g} + A_{3g} - A_{4g} - A_{5g})}
 
 \strong{Components:}
 \itemize{
-\item \eqn{A_1, A_2, A_3}: Signal, covariance, and error variance terms calculated using
+\item \strong{A1, A2, A3}: Signal, covariance, and error variance terms calculated using
 the symmetric weighting matrix \eqn{G=P}.
-\item \eqn{A_4, A_5}: Bias correction terms utilizing squared weights \eqn{G_{ij}^2}.
+\item \strong{A4, A5}: Bias correction terms utilizing squared weights \eqn{G_{ij}^2}.
 }
 }

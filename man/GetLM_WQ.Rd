@@ -9,40 +9,40 @@ GetLM_WQ(df, IdPW, IdPQ, dPW, dPQ, W, Q, X, Y)
 \arguments{
 \item{df}{Data frame. Contains the observable variables.}
 
-\item{IdPW}{Numeric vector. The diagonal elements \eqn{1 - P_{W,ii}} (inverse diagonals of covariate projection).}
+\item{IdPW}{Numeric vector. The annihilator diagonals \eqn{1 - P_{W,ii}}.}
 
-\item{IdPQ}{Numeric vector. The diagonal elements \eqn{1 - P_{Q,ii}} (inverse diagonals of full projection).}
+\item{IdPQ}{Numeric vector. The annihilator diagonals \eqn{1 - P_{Q,ii}}.}
 
-\item{dPW}{Numeric vector. The diagonal elements \eqn{P_{W,ii}}.}
+\item{dPW}{Numeric vector. The projection diagonals \eqn{P_{W,ii}}.}
 
-\item{dPQ}{Numeric vector. The diagonal elements \eqn{P_{Q,ii}}.}
+\item{dPQ}{Numeric vector. The projection diagonals \eqn{P_{Q,ii}}.}
 
 \item{W}{Matrix. The covariate matrix.}
 
 \item{Q}{Matrix. The combined instrument and covariate matrix \eqn{[Z, W]}.}
 
-\item{X}{Name of the first variable column (unquoted).}
+\item{X}{Column name (unquoted). The first variable (e.g., regressor).}
 
-\item{Y}{Name of the second variable column (unquoted).}
+\item{Y}{Column name (unquoted). The second variable (e.g., outcome).}
 }
 \value{
-A numeric scalar.
+Numeric scalar. The computed cross-product.
 }
 \description{
 Calculates the UJIVE "signal" or cross-product term \eqn{X' G Y} for a general design with
 covariates. The weighting matrix \eqn{G} is defined as \eqn{U(P_Q) - U(P_W)}, where \eqn{U(P)}
-is the projection matrix with diagonal elements removed and rows rescaled by \eqn{1/(1-P_{ii})}.
+represents the projection matrix with diagonal elements set to zero and rows rescaled by \eqn{1/(1-P_{ii})}.
 }
 \details{
 This function computes the scalar:
 \deqn{S = X' [ (I-D_{P_Q})^{-1}(P_Q - D_{P_Q}) - (I-D_{P_W})^{-1}(P_W - D_{P_W}) ] Y}
 
 It uses an efficient matrix algebra expansion that avoids constructing the \eqn{N \times N}
-projection matrices. The computation complexity is linear in \eqn{N} (given pre-computed
-basis matrices), making it suitable for large datasets.
+projection matrices explicitly. The computation complexity is linear in \eqn{N} (given pre-computed
+basis matrices), making it suitable for large datasets where \eqn{G} is dense.
 
-The result corresponds to \eqn{P_{XY}} (if \eqn{X \neq Y}) or \eqn{P_{XX}} (if \eqn{X = Y})
-used in the test inversion inequality.
+The result corresponds to the cross-term \eqn{P_{XY}} (if \eqn{X \neq Y}) or the self-term \eqn{P_{XX}} (if \eqn{X = Y})
+used in the confidence interval inequality.
 }
 \references{
 Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity". Working Paper.

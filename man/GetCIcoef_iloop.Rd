@@ -21,31 +21,33 @@ GetCIcoef_iloop(
 \arguments{
 \item{df}{Data frame. Contains the observable variables \eqn{X, Y} and their projections.}
 
-\item{P}{Matrix. The full projection matrix \eqn{P}.}
+\item{P}{Matrix of dimension n x n. The full projection matrix \eqn{P}.}
 
-\item{G}{Matrix. The UJIVE weighting matrix \eqn{G}.}
+\item{G}{Matrix of dimension n x n. The UJIVE weighting matrix \eqn{G}.}
 
-\item{X}{Name of the endogenous regressor column (unquoted).}
+\item{X}{Column name (unquoted). The endogenous regressor.}
 
-\item{Y}{Name of the outcome variable column (unquoted).}
+\item{Y}{Column name (unquoted). The outcome variable.}
 
-\item{MX}{Name of the column (unquoted) containing \eqn{M X} (leverage-adjusted regressor).}
+\item{MX}{Column name (unquoted). Leverage-adjusted regressor (\eqn{M X}).}
 
-\item{MY}{Name of the column (unquoted) containing \eqn{M Y} (leverage-adjusted outcome).}
+\item{MY}{Column name (unquoted). Leverage-adjusted outcome (\eqn{M Y}).}
 
-\item{Z}{Matrix. The instrument matrix.}
+\item{Z}{Matrix of instruments.}
 
-\item{W}{Matrix. The covariate matrix.}
+\item{W}{Matrix of covariates.}
 
-\item{q}{Numeric. The critical value for the test inversion (typically \eqn{1.96^2}).}
+\item{q}{Numeric scalar. Critical value for the test inversion (typically \eqn{1.96^2}).
+Defaults to \code{qnorm(.975)^2} (approx. 3.84) for a 95 percent confidence interval.}
 
-\item{noisy}{Logical. If \code{TRUE}, prints progress during variance component calculation.}
+\item{noisy}{Logical. If \code{TRUE}, prints progress dots during calculation.
+Defaults to \code{FALSE}.}
 }
 \value{
-A numeric vector of length 3 containing \code{c(a, b, c)}.
+Numeric vector of length 3 containing \code{c(a, b, c)}.
 }
 \description{
-Calculates the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
+Computes the coefficients \eqn{(a, b, c)} of the quadratic inequality \eqn{a\beta^2 + b\beta + c \leq 0}
 used to construct confidence intervals for \eqn{\beta} in general instrumental variable designs.
 This function supports asymmetric weighting matrices (e.g., UJIVE with continuous covariates)
 by using the fully generalized \code{_iloop} variance estimators.
@@ -55,6 +57,8 @@ This is the most general version of the confidence interval coefficient calculat
 It does not assume symmetry of the weighting matrix \eqn{G}. Consequently, it computes
 all five distinct variance components (\eqn{A_1} through \eqn{A_5}) for each term in the
 polynomial expansion of \eqn{\hat{V}(\beta)}.
+
+The returned coefficients define the curvature and position of the confidence set parabola:
 
 The function explicitly constructs the diagonal adjustments for the UJIVE signal calculation
 using the matrices \eqn{Z} and \eqn{W}.

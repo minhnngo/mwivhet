@@ -2,25 +2,25 @@
 #'
 #' @description
 #' Calculates the consistent variance estimator (\eqn{\hat{V}_{LM}}) for the Lagrange Multiplier (LM)
-#' test statistic. This estimator is robust to both many weak instruments and heterogeneous treatment effects.
+#' test statistic using the "Leave-Three-Out" (L3O) adjustment.
 #'
-#' The function implements the "Leave-Three-Out" (L3O) approach proposed in Yap (2025),
-#' which corrects for biases in variance estimation that arise when reduced-form coefficients
-#' are not consistently estimable (e.g., due to many instruments).
-#'
-#' @param X A numeric vector of length n containing the endogenous variable.
-#' @param e A numeric vector of length n containing the residuals under the null hypothesis
+#' @param X Numeric vector of length n. The endogenous variable.
+#' @param e Numeric vector of length n. Residuals under the null hypothesis
 #'   (\eqn{e = Y - X\beta_0}).
-#' @param P A numeric n x n projection matrix of the instruments (and potentially covariates).
+#' @param P Matrix of dimension n x n. Projection matrix of the instruments (and potentially covariates).
 #'   Corresponds to matrix \eqn{P} or \eqn{H_Q} in the paper.
-#' @param G A numeric n x n weighting matrix used in the JIVE/UJIVE estimator.
+#' @param G Matrix of dimension n x n. Weighting matrix used in the JIVE/UJIVE estimator.
 #'   For standard JIVE, G is equal to P. For UJIVE with covariates, G is the adjusted
 #'   matrix defined in Section 3.1.
-#' @param noisy A logical indicating whether to print progress dots during the loop.
+#' @param noisy Logical. If \code{TRUE}, print progress dots during the loop.
 #'   Defaults to \code{FALSE}.
 #'
 #' @details
-#' The function computes the variance estimator defined in Equation (9) of the paper:
+#' This variance estimator is robust to both many weak instruments and heterogeneous treatment effects.
+#' It corrects for biases in variance estimation that arise when reduced-form coefficients
+#' are not consistently estimable.
+#'
+#' The function computes the variance estimator defined in Equation (9) of Yap (2025):
 #' \deqn{\hat{V}_{LM} = A_1 + A_2 + A_3 + A_4 + A_5}
 #'
 #' It iterates through each observation \eqn{i} to compute the necessary adjustments
@@ -29,16 +29,16 @@
 #'
 #' Specifically:
 #' \itemize{
-#'   \item \strong{A1-A3} capture the core variance components involving interactions between
+#'   \item \strong{A1, A2, A3} capture the core variance components involving interactions between
 #'   the instruments, endogenous variable, and residuals.
-#'   \item \strong{A4-A5} are correction terms that account for the variability from estimating
+#'   \item \strong{A4, A5} are correction terms that account for the variability from estimating
 #'   the reduced-form coefficients (which cannot be treated as fixed in the many-instrument setting).
 #' }
 #'
 #' The calculation relies on determinants \eqn{D_{ij}} and \eqn{D_{ijk}} derived from the annihilator
 #' matrix \eqn{M = I - P} to ensure the estimator is unbiased.
 #'
-#' @return A scalar numeric value representing the estimated variance \eqn{\hat{V}_{LM}}.
+#' @return Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 #'
 #' @references
 #' Yap, L. (2025). "Inference with Many Weak Instruments and Heterogeneity".
@@ -149,18 +149,18 @@ L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
 #' Compute L3O Variance for Score Statistic (Grouped Design)
 #'
 #' @description
-#' Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
-#' in a grouped instrument design with covariates. This function simultaneously computes
-#' all five variance components (\eqn{A_1} through \eqn{A_5}) by exploiting the block-diagonal
-#' symmetry of the projection matrices.
+#' Computes the Leave-Three-Out (L3O) variance estimator (\eqn{\hat{V}_{LM}}) for the score statistic
+#' in a grouped instrument design with covariates. This function simultaneously calculates
+#' all five variance components by exploiting the block-diagonal symmetry of the projection matrices
+#' inherent to discrete instruments.
 #'
-#' @param df Data frame. Contains the data vectors and grouping variables.
-#' @param group Name of the instrument grouping variable (unquoted).
-#' @param groupW Name of the covariate stratification variable (unquoted).
-#' @param X Name of the endogenous regressor column (unquoted).
-#' @param e Name of the residual column (unquoted).
-#' @param MX Name of the column (unquoted) containing \eqn{M_i X_i} (leverage-adjusted regressor).
-#' @param Me Name of the column (unquoted) containing \eqn{M_i e_i} (leverage-adjusted residual).
+#' @param df Data frame. Contains the variables used in estimation.
+#' @param group Column name (unquoted). The instrument grouping variable.
+#' @param groupW Column name (unquoted). The covariate stratification variable.
+#' @param X Column name (unquoted). The endogenous regressor.
+#' @param e Column name (unquoted). Residuals under the null hypothesis (\eqn{Y - X\beta_0}).
+#' @param MX Column name (unquoted). Leverage-adjusted regressor (\eqn{M_i X_i}).
+#' @param Me Column name (unquoted). Leverage-adjusted residual (\eqn{M_i e_i}).
 #'
 #' @details
 #' This function implements the variance estimator \eqn{\hat{V}_{LM}} for the Limited Information
@@ -168,18 +168,15 @@ L3Ovar_iloop_cov <- function(X, e, P, G, noisy = FALSE) {
 #' \deqn{\hat{V} = A_1 + 2A_2 + A_3 - A_4 - A_5}
 #'
 #' Because the design implies symmetric weighting matrices (\eqn{G_{ij} = G_{ji}}), the function
-#' simplifies the asymmetric components (\eqn{A_2, A_3}) to use the same logic as \eqn{A_1},
-#' and collapses \eqn{A_5} to use the same squared-weight logic as \eqn{A_4}.
+#' simplifies the asymmetric components.
 #'
 #' \strong{Components:}
 #' \itemize{
-#'   \item \eqn{A_1}: Variance of the first-stage signal (involving \eqn{X_j X_k}).
-#'   \item \eqn{A_2}: Covariance between signal and error (involving \eqn{X_j e_k}).
-#'   \item \eqn{A_3}: Variance of the error projection (involving \eqn{e_j e_k}).
-#'   \item \eqn{A_4, A_5}: Bias corrections for "own-observation" variance contributions.
+#'   \item \strong{A1, A2, A3}: Variance and covariance of the score statistic. Calculated via 5 sub-components each.
+#'   \item \strong{A4, A5}: Bias correction terms for "own-observation" variance contributions. Calculated via 4 sub-components each.
 #' }
 #'
-#' @return A numeric scalar representing the estimated variance.
+#' @return Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 #'
 #' @export
 L3Ovar_gloop_cov <- function(df, group, groupW, X, e, MX, Me) {
@@ -296,38 +293,37 @@ L3Ovar_gloop_cov <- function(df, group, groupW, X, e, MX, Me) {
   sum(ret)
 }
 
-#' Compute L3O Variance for Score Statistic (No Covariates)
+#' Compute L3O Variance for Score Statistic (Grouped Design, No Covariates)
 #'
 #' @description
-#' Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
-#' in a "Many Means" design (mutually exclusive instrument groups with no covariates).
+#' Computes the Leave-Three-Out (L3O) variance estimator (\eqn{\hat{V}_{LM}}) for the score statistic
+#' in a grouped instrument design without covariates.
 #' This function leverages the block-diagonal structure of the projection matrix to
-#' compute all variance components (\eqn{A_1} through \eqn{A_5}) locally within each group.
+#' compute all variance components locally within each group.
 #'
-#' @param df Data frame. Contains the data vectors and grouping variables.
-#' @param group Name of the instrument grouping variable (unquoted).
-#' @param X Name of the endogenous regressor column (unquoted).
-#' @param e Name of the residual column (unquoted).
-#' @param MX Name of the column (unquoted) containing \eqn{M_i X_i} (leverage-adjusted regressor).
-#' @param Me Name of the column (unquoted) containing \eqn{M_i e_i} (leverage-adjusted residual).
+#' @param df Data frame. Contains the variables used in estimation.
+#' @param group Column name (unquoted). The instrument grouping variable.
+#' @param X Column name (unquoted). The endogenous regressor.
+#' @param e Column name (unquoted). Residuals under the null hypothesis (\eqn{Y - X\beta_0}).
+#' @param MX Column name (unquoted). Leverage-adjusted regressor (\eqn{M_i X_i}).
+#' @param Me Column name (unquoted). Leverage-adjusted residual (\eqn{M_i e_i}).
 #'
 #' @details
-#' This function implements the variance estimator \eqn{\hat{V}_{LM}} for the case where
-#' \eqn{G = P} (symmetric weights) and the design matrix is block-diagonal.
+#' This function implements the variance estimator \eqn{\hat{V}_{LM}} for the specific case where
+#' \eqn{G = P} (symmetric weights) and the design matrix is block-diagonal (no covariates).
 #'
-#' \strong{Optimization:}
 #' Instead of operating on \eqn{N \times N} matrices, the function iterates through groups.
 #' Within each group subset, the projection matrix is dense but small. The function computes:
 #' \deqn{\hat{V} = \sum_g (A_{1g} + 2A_{2g} + A_{3g} - A_{4g} - A_{5g})}
 #'
 #' \strong{Components:}
 #' \itemize{
-#'   \item \eqn{A_1, A_2, A_3}: Signal, covariance, and error variance terms calculated using
+#'   \item \strong{A1, A2, A3}: Signal, covariance, and error variance terms calculated using
 #'   the symmetric weighting matrix \eqn{G=P}.
-#'   \item \eqn{A_4, A_5}: Bias correction terms utilizing squared weights \eqn{G_{ij}^2}.
+#'   \item \strong{A4, A5}: Bias correction terms utilizing squared weights \eqn{G_{ij}^2}.
 #' }
 #'
-#' @return A numeric scalar representing the total estimated variance.
+#' @return Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 #'
 #' @export
 L3Ovar_gloop_nocov <- function(df, group, X, e, MX, Me) {
@@ -440,20 +436,20 @@ L3Ovar_gloop_nocov <- function(df, group, X, e, MX, Me) {
 #' Compute L3O Variance for Score Statistic (No Covariates, General Symmetric P)
 #'
 #' @description
-#' Calculates the complete Leave-Three-Out (L3O) variance estimator for the score statistic
+#' Calculates the Leave-Three-Out (L3O) variance estimator (\eqn{\hat{V}_{LM}}) for the score statistic
 #' in the "No Covariates" setting. Unlike the group-optimized functions, this implementation
 #' loops over every observation \eqn{i}, making it suitable for any design where the
 #' weighting matrix is symmetric (\eqn{G = P}), even if it lacks a strict block-diagonal structure.
 #'
-#' @param X Numeric vector. The endogenous regressor.
-#' @param e Numeric vector. The residual vector.
-#' @param P Matrix. The \eqn{N \times N} projection matrix (must be symmetric).
+#' @param X Numeric vector of length n. The endogenous regressor.
+#' @param e Numeric vector of length n. Residuals under the null hypothesis.
+#' @param P Matrix of dimension n x n. The projection matrix (must be symmetric).
 #'
 #' @details
 #' This function implements the variance estimator \eqn{\hat{V}_{LM}} under the assumption
 #' that there are no covariates, implying \eqn{G = P} and \eqn{P} is symmetric.
 #'
-#' \strong{Algorithm:}
+#' \strong{Specifically:}
 #' The function iterates through each observation \eqn{i} (1 to \eqn{N}). Inside the loop, it:
 #' \enumerate{
 #'   \item Extracts the \eqn{i}-th column of \eqn{P} and \eqn{M}.
@@ -465,7 +461,7 @@ L3Ovar_gloop_nocov <- function(df, group, X, e, MX, Me) {
 #' This implementation is slower than \code{L3Ovar_gloop_nocov} for simple grouped designs but
 #' is more general.
 #'
-#' @return A numeric scalar representing the estimated variance.
+#' @return Scalar. The estimated variance \eqn{\hat{V}_{LM}}.
 #'
 #' @export
 L3Ovar_iloop_nocov <- function(X, e, P) {
