@@ -17,7 +17,7 @@ implementing the package functions.
 
 ## Installation
 
-You can install the development version of mwivhet from
+You can install the development version from
 [GitHub](https://github.com/) with:
 
 ``` r
