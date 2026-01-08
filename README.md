@@ -13,8 +13,8 @@ potentially weak instruments, in the presence of heterogeneous treatment
 effects. The package implements procedures from [Yap
 (2025)](https://www.arxiv.org/abs/2408.11193).
 
-See the [package vignette](vignettes/mwivhet.Rmd) for a demo on
-implementing the package functions.
+Please refer to the [website](https://minhnngo.github.io/mwivhet) for
+comprehensive details and a demonstration of the package functions.
 
 ## Installation
 
