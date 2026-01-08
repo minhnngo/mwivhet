@@ -5,6 +5,7 @@
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/minhnngo/mwivhet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/minhnngo/mwivhet/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Inference in a linear instrumental variable regression model with many
