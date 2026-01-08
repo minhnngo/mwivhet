@@ -1,8 +1,8 @@
 ---
-title: "Demo for the mwivhet package"
+title: "mwivhet"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Demo for the mwivhet package}
+  %\VignetteIndexEntry{mwivhet}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -65,7 +65,8 @@ print(CI)
 ```
 
 ```{r}
-# Demo for QOB example using stored G and P. Slower but allows continuous W, Z
+# Demo for QOB example with covariates, using stored G and P. Slower but allows continuous W, Z
+# Would give the same results as previous example
 
 # Construct G and P using the package function
 GP <- GetGP(group = dc$group, groupW = dc$groupW, n = nrow(dc))
