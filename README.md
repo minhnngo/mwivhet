@@ -13,7 +13,7 @@ effects. The package implements procedures from [Yap
 (2025)](https://www.arxiv.org/abs/2408.11193).
 
 See the [package vignette](vignettes/mwivhet.Rmd) for a demo on
-implementing the package functions
+implementing the package functions.
 
 ## Installation
 
